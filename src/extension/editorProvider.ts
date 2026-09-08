@@ -383,7 +383,7 @@ export class IMarkEditorProvider implements vscode.CustomTextEditorProvider {
       vscode.Uri.joinPath(this.context.extensionUri, 'dist'),
       vscode.Uri.joinPath(this.context.extensionUri, 'media'),
       ...this.files.rootsFor(docUri),
-      ...this.themes.resourceRoots(docUri, resolved),
+      ...this.themes.resourceRoots(resolved),
     ];
     const seen = new Set<string>();
     return roots.filter((r) => {

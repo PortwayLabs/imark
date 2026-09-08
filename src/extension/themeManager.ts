@@ -1,18 +1,15 @@
-// Discovers Obsidian themes / snippets and resolves which stylesheets a
-// webview should load.
+// iMark's theme library: Obsidian themes / CSS snippets imported into the
+// extension's global storage, selected through VS Code settings.
 import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { ThemeInfo, ThemeMode } from '../shared/protocol';
+import { appearanceMode, copySnippet, copyTheme, findVaultDir, planImport, themeSource, themesIn, type ImportPlan, type ThemeSource } from './themeImport';
 
-export interface ThemeEntry {
-  /** Display name (from manifest.json when available). */
-  name: string;
-  /** Folder name, used as the setting value. */
-  id: string;
-  dir: string;
+export interface ThemeEntry extends ThemeSource {
   cssPath: string;
-  author?: string;
+  /** `library` = imported into iMark, `external` = from `imark.theme.path`. */
+  origin: 'library' | 'external';
 }
 
 export interface ResolvedTheme {
@@ -21,6 +18,14 @@ export interface ResolvedTheme {
   cssPaths: string[];
   mode: ThemeMode;
   accentColor: string;
+  /** Set when the configured theme could not be found. */
+  missing?: string;
+}
+
+export interface ImportResult {
+  themes: ThemeEntry[];
+  snippets: string[];
+  plan: ImportPlan;
 }
 
 const exists = (p: string) => {
@@ -30,20 +35,6 @@ const exists = (p: string) => {
     return false;
   }
 };
-
-export function findVaultDir(startDir: string): string | null {
-  let dir = startDir;
-  for (let i = 0; i < 16; i++) {
-    if (exists(path.join(dir, '.obsidian'))) return dir;
-    const parent = path.dirname(dir);
-    if (parent === dir) break;
-    dir = parent;
-  }
-  for (const f of vscode.workspace.workspaceFolders ?? []) {
-    if (exists(path.join(f.uri.fsPath, '.obsidian'))) return f.uri.fsPath;
-  }
-  return null;
-}
 
 export function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
   const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex.trim());
@@ -74,8 +65,14 @@ export class ThemeManager implements vscode.Disposable {
   private watchers = new Map<string, fs.FSWatcher>();
   private debounce: NodeJS.Timeout | undefined;
   private disposables: vscode.Disposable[] = [];
+  readonly libraryDir: string;
+  readonly snippetsDir: string;
 
-  constructor() {
+  constructor(private readonly context: vscode.ExtensionContext) {
+    this.libraryDir = path.join(context.globalStorageUri.fsPath, 'themes');
+    this.snippetsDir = path.join(context.globalStorageUri.fsPath, 'snippets');
+    fs.mkdirSync(this.libraryDir, { recursive: true });
+    fs.mkdirSync(this.snippetsDir, { recursive: true });
     this.disposables.push(
       vscode.workspace.onDidChangeConfiguration((e) => {
         if (e.affectsConfiguration('imark.theme')) this.fire();
@@ -93,94 +90,140 @@ export class ThemeManager implements vscode.Disposable {
     return vscode.workspace.getConfiguration('imark.theme');
   }
 
-  /** Directory holding Obsidian themes for a document, if any. */
-  themesDir(docUri: vscode.Uri): string | null {
+  /** Optional extra directory of themes configured by the user (read-only, never written). */
+  externalDir(): string | null {
     const configured = this.config().get<string>('path', '').trim();
-    if (configured) {
-      const p = configured.startsWith('~') ? path.join(process.env.HOME ?? '', configured.slice(1)) : configured;
-      if (exists(p)) return p;
-    }
-    const vault = findVaultDir(path.dirname(docUri.fsPath));
-    if (vault) {
-      const dir = path.join(vault, '.obsidian', 'themes');
-      if (exists(dir)) return dir;
-    }
-    return null;
+    if (!configured) return null;
+    const p = configured.startsWith('~') ? path.join(process.env.HOME ?? '', configured.slice(1)) : configured;
+    return exists(p) ? p : null;
   }
 
-  vaultDir(docUri: vscode.Uri): string | null {
-    return findVaultDir(path.dirname(docUri.fsPath));
+  listThemes(): ThemeEntry[] {
+    const lib = themesIn(this.libraryDir).map<ThemeEntry>((t) => ({ ...t, cssPath: path.join(t.dir, 'theme.css'), origin: 'library' }));
+    const ext = this.externalDir();
+    const external = ext ? themesIn(ext).map<ThemeEntry>((t) => ({ ...t, cssPath: path.join(t.dir, 'theme.css'), origin: 'external' })) : [];
+    const ids = new Set(lib.map((t) => t.id));
+    return [...lib, ...external.filter((t) => !ids.has(t.id))];
   }
 
-  listThemes(docUri: vscode.Uri): ThemeEntry[] {
-    const dir = this.themesDir(docUri);
-    if (!dir) return [];
-    const out: ThemeEntry[] = [];
-    let entries: fs.Dirent[] = [];
+  findTheme(idOrName: string): ThemeEntry | undefined {
+    const themes = this.listThemes();
+    return themes.find((t) => t.id === idOrName) ?? themes.find((t) => t.name === idOrName);
+  }
+
+  /** Suggested folder for the import dialog: the current vault's `.obsidian/themes` if any. */
+  suggestedImportDir(docUri?: vscode.Uri): vscode.Uri | undefined {
+    const starts = [docUri ? path.dirname(docUri.fsPath) : null, ...(vscode.workspace.workspaceFolders ?? []).map((f) => f.uri.fsPath)].filter((s): s is string => !!s);
+    for (const s of starts) {
+      const vault = findVaultDir(s);
+      if (vault) {
+        const themes = path.join(vault, '.obsidian', 'themes');
+        return vscode.Uri.file(exists(themes) ? themes : vault);
+      }
+    }
+    return undefined;
+  }
+
+  /** Import themes / snippets from user-picked paths into the library. */
+  async importFrom(paths: string[]): Promise<ImportResult> {
+    const result: ImportResult = { themes: [], snippets: [], plan: { themes: [], snippets: [], appearance: null, vaultSnippetsDir: null } };
+    for (const p of paths) {
+      const plan = planImport(p);
+      result.plan.themes.push(...plan.themes);
+      result.plan.snippets.push(...plan.snippets);
+      if (plan.appearance && !result.plan.appearance) {
+        result.plan.appearance = plan.appearance;
+        result.plan.vaultSnippetsDir = plan.vaultSnippetsDir;
+      }
+      for (const t of plan.themes) {
+        const target = await copyTheme(t, this.libraryDir);
+        const entry = themeSource(target);
+        if (entry) result.themes.push({ ...entry, cssPath: path.join(target, 'theme.css'), origin: 'library' });
+      }
+      for (const s of plan.snippets) result.snippets.push(await copySnippet(s, this.snippetsDir));
+    }
+    this.fire();
+    return result;
+  }
+
+  async removeTheme(id: string): Promise<boolean> {
+    const dir = path.join(this.libraryDir, id);
+    if (!exists(dir)) return false;
+    await fs.promises.rm(dir, { recursive: true, force: true });
+    this.fire();
+    return true;
+  }
+
+  listSnippets(): string[] {
     try {
-      entries = fs.readdirSync(dir, { withFileTypes: true });
+      return fs
+        .readdirSync(this.snippetsDir)
+        .filter((f) => f.toLowerCase().endsWith('.css'))
+        .sort();
     } catch {
       return [];
     }
-    for (const e of entries) {
-      if (!e.isDirectory()) continue;
-      const themeDir = path.join(dir, e.name);
-      const cssPath = path.join(themeDir, 'theme.css');
-      if (!exists(cssPath)) continue;
-      let name = e.name;
-      let author: string | undefined;
-      try {
-        const manifest = JSON.parse(fs.readFileSync(path.join(themeDir, 'manifest.json'), 'utf8')) as { name?: string; author?: string };
-        if (manifest.name) name = manifest.name;
-        author = manifest.author;
-      } catch {
-        /* no manifest */
-      }
-      out.push({ name, id: e.name, dir: themeDir, cssPath, author });
-    }
-    return out.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  private appearance(vault: string | null): { cssTheme?: string; theme?: string; enabledCssSnippets?: string[] } {
-    if (!vault) return {};
-    try {
-      return JSON.parse(fs.readFileSync(path.join(vault, '.obsidian', 'appearance.json'), 'utf8'));
-    } catch {
-      return {};
-    }
-  }
-
-  resolve(docUri: vscode.Uri): ResolvedTheme {
+  /** Apply a vault's appearance settings (theme, mode, accent, snippets) to VS Code settings. */
+  async applyAppearance(plan: ImportPlan, imported: ImportResult): Promise<string[]> {
+    const applied: string[] = [];
     const cfg = this.config();
-    const requested = cfg.get<string>('name', 'auto').trim();
+    const a = plan.appearance;
+    if (!a) return applied;
+    if (a.cssTheme) {
+      const t = imported.themes.find((x) => x.name === a.cssTheme || x.id === a.cssTheme) ?? this.findTheme(a.cssTheme);
+      if (t) {
+        await cfg.update('name', t.id, this.targetFor('name'));
+        applied.push(`theme "${t.name}"`);
+      }
+    }
+    const mode = appearanceMode(a.theme);
+    if (mode) {
+      await cfg.update('mode', mode, this.targetFor('mode'));
+      applied.push(`mode ${mode}`);
+    }
+    if (a.accentColor && /^#?[0-9a-f]{3,6}$/i.test(a.accentColor)) {
+      await cfg.update('accentColor', a.accentColor.startsWith('#') ? a.accentColor : `#${a.accentColor}`, this.targetFor('accentColor'));
+      applied.push(`accent ${a.accentColor}`);
+    }
+    if (imported.snippets.length) {
+      const names = imported.snippets.map((s) => path.basename(s));
+      await cfg.update('snippets', names, this.targetFor('snippets'));
+      applied.push(`${names.length} snippet(s)`);
+    }
+    return applied;
+  }
+
+  /** Update a setting where it is currently defined (workspace wins), defaulting to user settings. */
+  targetFor(key: string): vscode.ConfigurationTarget {
+    const info = this.config().inspect(key);
+    if (info?.workspaceFolderValue !== undefined) return vscode.ConfigurationTarget.WorkspaceFolder;
+    if (info?.workspaceValue !== undefined) return vscode.ConfigurationTarget.Workspace;
+    return vscode.ConfigurationTarget.Global;
+  }
+
+  async setTheme(value: string): Promise<void> {
+    await this.config().update('name', value, this.targetFor('name'));
+  }
+
+  resolve(_docUri?: vscode.Uri): ResolvedTheme {
+    const cfg = this.config();
+    let requested = cfg.get<string>('name', 'vscode').trim();
+    if (requested === 'auto' || requested === '') requested = 'vscode';
     const mode = cfg.get<ThemeMode>('mode', 'auto');
     const accentColor = cfg.get<string>('accentColor', '').trim();
-    const vault = this.vaultDir(docUri);
-    const appearance = this.appearance(vault);
-    const themes = this.listThemes(docUri);
 
     let kind: ResolvedTheme['kind'] = 'vscode';
     let name = 'Follow VS Code';
+    let missing: string | undefined;
     const cssPaths: string[] = [];
 
-    const pick = (id: string) => themes.find((t) => t.id === id || t.name === id);
-    if (requested === 'vscode' || requested === '') {
-      kind = 'vscode';
-    } else if (requested === 'obsidian') {
+    if (requested === 'obsidian') {
       kind = 'obsidian';
       name = 'Obsidian';
-    } else if (requested === 'auto') {
-      const auto = appearance.cssTheme ? pick(appearance.cssTheme) : undefined;
-      if (auto) {
-        kind = 'theme';
-        name = auto.name;
-        cssPaths.push(auto.cssPath);
-      } else if (vault) {
-        kind = 'obsidian';
-        name = 'Obsidian';
-      }
-    } else {
-      const t = pick(requested);
+    } else if (requested !== 'vscode') {
+      const t = this.findTheme(requested);
       if (t) {
         kind = 'theme';
         name = t.name;
@@ -188,24 +231,25 @@ export class ThemeManager implements vscode.Disposable {
       } else {
         kind = 'obsidian';
         name = `Obsidian (theme "${requested}" not found)`;
+        missing = requested;
       }
     }
 
-    // Snippets: configured ones plus (in auto mode) the vault's enabled snippets.
-    const snippetNames = new Set<string>(cfg.get<string[]>('snippets', []));
-    if (requested === 'auto') for (const s of appearance.enabledCssSnippets ?? []) snippetNames.add(s);
-    for (const s of snippetNames) {
+    for (const s of cfg.get<string[]>('snippets', [])) {
       if (!s) continue;
       let p = s;
       if (!path.isAbsolute(p)) {
-        if (!vault) continue;
-        p = path.join(vault, '.obsidian', 'snippets', p.endsWith('.css') ? p : `${p}.css`);
+        const file = p.endsWith('.css') ? p : `${p}.css`;
+        const candidates = [path.join(this.snippetsDir, file)];
+        const ext = this.externalDir();
+        if (ext) candidates.push(path.join(ext, file), path.join(path.dirname(ext), 'snippets', file));
+        p = candidates.find(exists) ?? '';
       }
-      if (exists(p)) cssPaths.push(p);
+      if (p && exists(p)) cssPaths.push(p);
     }
 
     this.watch(cssPaths);
-    return { name, kind, cssPaths, mode, accentColor };
+    return { name, kind, cssPaths, mode, accentColor, missing };
   }
 
   toThemeInfo(webview: vscode.Webview, extensionUri: vscode.Uri, resolved: ResolvedTheme): ThemeInfo {
@@ -228,14 +272,12 @@ export class ThemeManager implements vscode.Disposable {
     return { name: resolved.name, kind: resolved.kind, cssUris, mode: resolved.mode, extraCss };
   }
 
-  /** Roots the webview must be allowed to load for this theme. */
-  resourceRoots(docUri: vscode.Uri, resolved: ResolvedTheme): vscode.Uri[] {
-    const roots = new Set<string>();
+  /** Roots the webview must be allowed to load theme assets from. */
+  resourceRoots(resolved: ResolvedTheme): vscode.Uri[] {
+    const roots = new Set<string>([this.context.globalStorageUri.fsPath]);
+    const ext = this.externalDir();
+    if (ext) roots.add(ext);
     for (const p of resolved.cssPaths) roots.add(path.dirname(p));
-    const themesDir = this.themesDir(docUri);
-    if (themesDir) roots.add(themesDir);
-    const vault = this.vaultDir(docUri);
-    if (vault) roots.add(path.join(vault, '.obsidian'));
     return [...roots].map((p) => vscode.Uri.file(p));
   }
 

@@ -8,6 +8,8 @@ import { renderInline, renderMarkdown, renderMath, sanitize, type RenderContext 
 import { calloutMeta, type CalloutHeader } from '../render/callouts';
 import { svgIconElement } from '../render/icons';
 import { hydrateRendered } from '../render/hydrate';
+import { mermaidThemeKey, mountMermaid, renderMermaid } from '../render/mermaid';
+import { openDiagramPreview } from '../ui/diagramModal';
 
 export interface WidgetContext {
   resolver: LinkResolver;
@@ -528,6 +530,54 @@ export class CalloutWidget extends WidgetType {
   }
   ignoreEvent(e: Event): boolean {
     return e.type !== 'mousedown';
+  }
+}
+
+// ---- Mermaid diagrams ----------------------------------------------------------------
+
+export class MermaidWidget extends WidgetType {
+  constructor(
+    readonly code: string,
+    readonly themeKey = mermaidThemeKey(),
+  ) {
+    super();
+  }
+  eq(other: MermaidWidget): boolean {
+    return other.code === this.code && other.themeKey === this.themeKey;
+  }
+  toDOM(view: EditorView): HTMLElement {
+    const wrap = document.createElement('div');
+    wrap.className = 'cm-embed-block cm-lang-mermaid markdown-rendered cm-preview-code-block';
+    wrap.setAttribute('contenteditable', 'false');
+    const diagram = document.createElement('div');
+    diagram.className = 'mermaid';
+    diagram.setAttribute('aria-label', 'Mermaid diagram — click to enlarge');
+    wrap.appendChild(diagram);
+    wrap.appendChild(editBlockButton(view, () => wrap, 0));
+    void mountMermaid(diagram, this.code);
+    diagram.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    diagram.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (diagram.classList.contains('mermaid-error')) {
+        placeCursorAt(view, wrap, 0);
+        return;
+      }
+      void renderMermaid(this.code).then((r) => {
+        if (r.svg) openDiagramPreview(r.svg, 'Mermaid diagram');
+      });
+    });
+    return wrap;
+  }
+  ignoreEvent(e: Event): boolean {
+    return e.type !== 'mousedown' && e.type !== 'click';
+  }
+  get estimatedHeight(): number {
+    return 200;
   }
 }
 

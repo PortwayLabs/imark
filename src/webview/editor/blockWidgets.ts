@@ -5,7 +5,9 @@ import { Decoration, EditorView, type DecorationSet } from '@codemirror/view';
 import { StateField, type EditorState, type Range } from '@codemirror/state';
 import { syntaxTree } from '@codemirror/language';
 import type { SyntaxNode } from '@lezer/common';
-import { CalloutWidget, HtmlBlockWidget, MathWidget, TableWidget, widgetContext, type TableCellInfo, type TableInfo } from './widgets';
+import { CalloutWidget, HtmlBlockWidget, MathWidget, MermaidWidget, TableWidget, widgetContext, type TableCellInfo, type TableInfo } from './widgets';
+import { StateEffect } from '@codemirror/state';
+import { mermaidThemeKey } from '../render/mermaid';
 import { livePreviewEnabled, selectionTouches } from './livePreview';
 import { parseCalloutHeader } from '../render/callouts';
 import { renderMarkdown } from '../render/markdownIt';
@@ -112,6 +114,20 @@ function build(state: EditorState): DecorationSet {
           decos.push(Decoration.replace({ block: true }).range(from, to));
           return false;
         }
+        case 'FencedCode': {
+          const info = n.node.getChild('CodeInfo');
+          const lang = info ? doc.sliceString(info.from, info.to).trim().split(/\s+/)[0].toLowerCase() : '';
+          if (lang !== 'mermaid') return false;
+          const { from, to } = blockRange(n.node);
+          if (selectionTouches(state, from, to)) return false;
+          const marks = n.node.getChildren('CodeMark');
+          const startLine = doc.lineAt(n.from);
+          const codeFrom = Math.min(startLine.to + 1, to);
+          const codeTo = marks.length > 1 ? Math.max(codeFrom, doc.lineAt(marks[1].from).from - 1) : to;
+          const code = doc.sliceString(codeFrom, Math.max(codeFrom, codeTo));
+          decos.push(Decoration.replace({ widget: new MermaidWidget(code, mermaidThemeKey()), block: true }).range(from, to));
+          return false;
+        }
         case 'Frontmatter': {
           const { from, to } = blockRange(n.node);
           // A cursor sitting at the very start of the document should still see the properties widget.
@@ -128,10 +144,14 @@ function build(state: EditorState): DecorationSet {
   return Decoration.set(decos, true);
 }
 
+/** Forces block widgets to be rebuilt (e.g. after the light/dark theme changed). */
+export const rebuildBlockWidgets = StateEffect.define<null>();
+
 export const blockWidgetsField = StateField.define<DecorationSet>({
   create: build,
   update(value, tr) {
     if (
+      tr.effects.some((e) => e.is(rebuildBlockWidgets)) ||
       tr.docChanged ||
       tr.selection ||
       syntaxTree(tr.state) !== syntaxTree(tr.startState) ||

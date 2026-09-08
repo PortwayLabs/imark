@@ -6,6 +6,8 @@ import { languages } from '@codemirror/language-data';
 import { obsidianHighlightStyle } from '../editor/highlightStyle';
 import { renderMarkdown, type RenderContext } from './markdownIt';
 import { extractBlock, extractHeadingSection } from '../editor/widgets';
+import { mountMermaid, renderMermaid } from './mermaid';
+import { openDiagramPreview } from '../ui/diagramModal';
 
 const langCache = new Map<string, Promise<LanguageDescription | null>>();
 
@@ -56,10 +58,30 @@ export type ReadFile = (target: string) => Promise<string | null>;
 
 /** Hydrate a container filled by `renderMarkdown`. */
 export function hydrateRendered(container: HTMLElement, ctx: RenderContext, readFile: ReadFile): void {
+  // Mermaid diagrams replace their <pre>
+  container.querySelectorAll<HTMLElement>('pre > code[data-lang="mermaid"]').forEach((code) => {
+    const pre = code.parentElement;
+    if (!pre || pre.dataset.mermaid) return;
+    pre.dataset.mermaid = '1';
+    const source = code.textContent ?? '';
+    const diagram = document.createElement('div');
+    diagram.className = 'mermaid';
+    diagram.setAttribute('aria-label', 'Mermaid diagram — click to enlarge');
+    pre.replaceWith(diagram);
+    void mountMermaid(diagram, source);
+    diagram.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (diagram.classList.contains('mermaid-error')) return;
+      void renderMermaid(source).then((r) => {
+        if (r.svg) openDiagramPreview(r.svg, 'Mermaid diagram');
+      });
+    });
+  });
   // Code blocks
   container.querySelectorAll<HTMLElement>('pre > code[data-lang]').forEach((code) => {
     const lang = code.getAttribute('data-lang') ?? '';
-    if (lang && !code.classList.contains('is-loaded')) void highlightCodeElement(code, lang);
+    if (lang && lang !== 'mermaid' && !code.classList.contains('is-loaded')) void highlightCodeElement(code, lang);
   });
   container.querySelectorAll<HTMLButtonElement>('button.copy-code-button').forEach((btn) => {
     if (btn.dataset.wired) return;

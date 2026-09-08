@@ -40,7 +40,7 @@ suite('iMark extension', () => {
 
   test('commands are registered', async () => {
     const cmds = await vscode.commands.getCommands(true);
-    for (const c of ['imark.openInIMark', 'imark.openSource', 'imark.toggleReadingView', 'imark.toggleSourceMode', 'imark.selectTheme', 'imark.reloadTheme', 'imark.toggleReadableLineWidth']) {
+    for (const c of ['imark.openInIMark', 'imark.openSource', 'imark.toggleReadingView', 'imark.toggleSourceMode', 'imark.selectTheme', 'imark.importTheme', 'imark.removeTheme', 'imark.openThemesFolder', 'imark.reloadTheme', 'imark.toggleReadableLineWidth']) {
       assert.ok(cmds.includes(c), `${c} should be registered`);
     }
   });

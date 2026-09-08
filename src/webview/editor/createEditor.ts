@@ -11,7 +11,7 @@ import { languages } from '@codemirror/language-data';
 import type { EditorConfig } from '../../shared/protocol';
 import { obsidianSyntax } from '../markdown/obsidianSyntax';
 import { livePreviewPlugin, livePreviewEnabled, editorConfigFacet, selectionTouches } from './livePreview';
-import { blockWidgetsField } from './blockWidgets';
+import { blockWidgetsField, rebuildBlockWidgets } from './blockWidgets';
 import { activeLinePlugin } from './activeLine';
 import { widgetContext, type WidgetContext } from './widgets';
 import { buildKeymap, type KeymapActions } from './keymap';
@@ -42,6 +42,8 @@ export interface EditorHandle {
   setConfig(config: EditorConfig): void;
   setTitle(title: string): void;
   setWidgetContext(ctx: WidgetContext): void;
+  /** Rebuild block widgets (diagrams re-render for a new light/dark theme). */
+  refreshWidgets(): void;
 }
 
 const markdownPairs = ['(', '[', '{', "'", '"', '`', '*', '_', '~', '=', '$', '<'];
@@ -197,6 +199,9 @@ export function createEditor(opts: EditorOptions): EditorHandle {
     },
     setWidgetContext(ctx) {
       view.dispatch({ effects: widgetComp.reconfigure(widgetContext.of(ctx)) });
+    },
+    refreshWidgets() {
+      view.dispatch({ effects: rebuildBlockWidgets.of(null) });
     },
   };
 }

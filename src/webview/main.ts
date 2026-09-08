@@ -19,6 +19,7 @@ import type { WidgetContext } from './editor/widgets';
 import { renderMarkdown } from './render/markdownIt';
 import { hydrateRendered } from './render/hydrate';
 import { createHeader, type HeaderHandle } from './ui/header';
+import { setMermaidDark } from './render/mermaid';
 
 interface SavedState {
   mode?: EditorMode;
@@ -360,6 +361,12 @@ class App {
     }
     document.body.classList.toggle('theme-dark', dark);
     document.body.classList.toggle('theme-light', !dark);
+    void setMermaidDark(dark).then((changed) => {
+      if (!changed) return;
+      this.editor?.refreshWidgets();
+      this.readingDirty = true;
+      if (this.mode === 'reading') this.renderReading();
+    });
   }
 
   applyConfig(cfg: EditorConfig, initial = false) {

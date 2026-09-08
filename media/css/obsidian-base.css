@@ -462,6 +462,11 @@ body.imark-font-size-override {
   text-decoration-style: var(--link-unresolved-decoration-style);
   text-decoration-color: var(--link-unresolved-decoration-color);
 }
+.cm-s-obsidian span.cm-link.cm-link-reference {
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: text;
+}
 .cm-s-obsidian span.cm-link-alias-pipe {
   color: var(--text-faint);
 }
@@ -1628,4 +1633,170 @@ a.tag:hover {
 }
 .cm-s-obsidian .cm-embed-block.cm-html-embed > div > :last-child {
   margin-block-end: 0;
+}
+
+/* ---- Mermaid diagrams ------------------------------------------------------------ */
+.mermaid {
+  text-align: center;
+  cursor: zoom-in;
+  overflow-x: auto;
+  min-height: 1.5em;
+}
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+.mermaid.is-loading::before {
+  content: 'Rendering diagram…';
+  color: var(--text-faint);
+  font-size: var(--font-ui-small);
+  font-family: var(--font-interface);
+}
+.mermaid.mermaid-error {
+  cursor: var(--cursor);
+  text-align: start;
+}
+.mermaid-error-message {
+  margin: 0;
+  padding: var(--size-4-2) var(--size-4-3);
+  border-radius: var(--radius-s);
+  background-color: rgba(var(--color-red-rgb), 0.1);
+  color: var(--text-error);
+  font-family: var(--font-monospace);
+  font-size: var(--font-smaller);
+  white-space: pre-wrap;
+}
+.cm-s-obsidian .cm-embed-block.cm-lang-mermaid {
+  padding: var(--size-4-2) 0;
+}
+.markdown-rendered .mermaid {
+  margin: var(--p-spacing) 0;
+}
+
+/* ---- Modal (Obsidian-compatible) --------------------------------------------------- */
+.modal-container {
+  position: fixed;
+  inset: 0;
+  z-index: var(--layer-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+.modal-bg {
+  position: absolute;
+  inset: 0;
+  background-color: var(--background-modifier-cover);
+}
+.modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: var(--modal-width);
+  height: var(--modal-height);
+  max-width: var(--modal-max-width);
+  max-height: var(--modal-max-height);
+  background-color: var(--modal-background);
+  border: var(--modal-border-width) solid var(--modal-border-color);
+  border-radius: var(--modal-radius);
+  box-shadow: var(--shadow-l);
+  overflow: hidden;
+}
+.modal.mod-imark-diagram {
+  width: 94vw;
+  height: 92vh;
+  max-width: none;
+  max-height: none;
+}
+.modal-close-button {
+  position: absolute;
+  top: var(--size-4-2);
+  right: var(--size-4-2);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: var(--cursor);
+  z-index: 1;
+}
+.modal-close-button::before {
+  content: '×';
+  font-size: 22px;
+  line-height: 1;
+}
+.modal-close-button:hover {
+  background-color: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-3);
+  padding: var(--size-4-2) var(--size-4-12) var(--size-4-2) var(--size-4-4);
+  border-bottom: var(--border-width) solid var(--background-modifier-border);
+  font-family: var(--font-interface);
+}
+.modal-title {
+  font-size: var(--font-ui-medium);
+  font-weight: var(--font-semibold);
+  color: var(--text-normal);
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.imark-diagram-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-1);
+  -webkit-user-select: none;
+  user-select: none;
+}
+.imark-diagram-button {
+  background: none;
+  border: none;
+  box-shadow: none;
+  font-family: var(--font-interface);
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  min-width: 28px;
+  height: 28px;
+  padding: 0 var(--size-4-2);
+}
+.imark-diagram-button .svg-icon {
+  width: var(--icon-s);
+  height: var(--icon-s);
+}
+.imark-diagram-zoom {
+  min-width: 3.5em;
+  text-align: center;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.modal-content.imark-diagram-viewport {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  background-color: var(--background-primary);
+  background-image: radial-gradient(var(--background-modifier-border) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.modal-content.imark-diagram-viewport.is-dragging {
+  cursor: grabbing;
+}
+.imark-diagram-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+.imark-diagram-canvas svg {
+  display: block;
 }

@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
+import * as path from 'node:path';
 import { IMarkEditorProvider, VIEW_TYPE } from './editorProvider';
-import { ThemeManager } from './themeManager';
+import { ThemeManager, type ThemeEntry } from './themeManager';
 import { FileIndex } from './fileIndex';
 
 export function activate(context: vscode.ExtensionContext): void {
-  const themes = new ThemeManager();
+  const themes = new ThemeManager(context);
   const files = new FileIndex();
   const provider = new IMarkEditorProvider(context, themes, files);
   context.subscriptions.push(
@@ -23,6 +24,139 @@ export function activate(context: vscode.ExtensionContext): void {
     if (input?.uri) return input.uri;
     return provider.activeDocument?.uri ?? vscode.window.activeTextEditor?.document.uri;
   };
+
+  // ---- Theme import ------------------------------------------------------------------
+
+  async function importThemes(preset?: vscode.Uri[]): Promise<ThemeEntry[]> {
+    const picked =
+      preset ??
+      (await vscode.window.showOpenDialog({
+        title: 'iMark: Import Obsidian theme(s)',
+        openLabel: 'Import',
+        canSelectFiles: true,
+        canSelectFolders: true,
+        canSelectMany: true,
+        defaultUri: themes.suggestedImportDir(provider.activeDocument?.uri),
+        filters: { 'Theme / snippet CSS': ['css'], 'All files': ['*'] },
+      }));
+    if (!picked || !picked.length) return [];
+    const result = await themes.importFrom(picked.map((u) => u.fsPath));
+    if (!result.themes.length && !result.snippets.length) {
+      void vscode.window.showWarningMessage(
+        'iMark: nothing to import. Pick a theme folder (containing theme.css), a themes folder, an Obsidian vault / .obsidian folder, or a .css snippet.',
+      );
+      return [];
+    }
+    const summary = [
+      result.themes.length ? `${result.themes.length} theme${result.themes.length > 1 ? 's' : ''} (${result.themes.map((t) => t.name).join(', ')})` : '',
+      result.snippets.length ? `${result.snippets.length} snippet${result.snippets.length > 1 ? 's' : ''}` : '',
+    ]
+      .filter(Boolean)
+      .join(' and ');
+
+    if (result.plan.appearance) {
+      const a = result.plan.appearance;
+      const details = [a.cssTheme ? `theme "${a.cssTheme}"` : '', a.theme ? `base ${a.theme}` : '', a.accentColor ? `accent ${a.accentColor}` : '', a.enabledCssSnippets?.length ? `${a.enabledCssSnippets.length} snippet(s)` : '']
+        .filter(Boolean)
+        .join(', ');
+      const choice = await vscode.window.showInformationMessage(
+        `iMark imported ${summary}. This vault's appearance settings (${details}) can be applied to iMark as well.`,
+        { modal: true },
+        'Apply appearance settings',
+        'Just import',
+      );
+      if (choice === 'Apply appearance settings') {
+        const applied = await themes.applyAppearance(result.plan, result);
+        void vscode.window.showInformationMessage(`iMark: applied ${applied.join(', ') || 'nothing'}.`);
+        return result.themes;
+      }
+    } else if (result.themes.length === 1) {
+      const t = result.themes[0];
+      const choice = await vscode.window.showInformationMessage(`iMark imported ${summary}.`, 'Use this theme');
+      if (choice) await themes.setTheme(t.id);
+      return result.themes;
+    } else if (result.snippets.length && !result.themes.length) {
+      const names = result.snippets.map((s) => path.basename(s));
+      const cfg = vscode.workspace.getConfiguration('imark.theme');
+      const current = cfg.get<string[]>('snippets', []);
+      const merged = [...new Set([...current, ...names])];
+      await cfg.update('snippets', merged, themes.targetFor('snippets'));
+      void vscode.window.showInformationMessage(`iMark imported and enabled ${summary}.`);
+      return [];
+    }
+    void vscode.window.showInformationMessage(`iMark imported ${summary}.`);
+    return result.themes;
+  }
+
+  async function selectTheme(): Promise<void> {
+    type Item = vscode.QuickPickItem & { value?: string; action?: 'import' | 'folder'; theme?: ThemeEntry };
+    const removeButton: vscode.QuickInputButton = { iconPath: new vscode.ThemeIcon('trash'), tooltip: 'Remove this theme from iMark' };
+    const build = (): Item[] => {
+      const cfg = vscode.workspace.getConfiguration('imark.theme');
+      let current = cfg.get<string>('name', 'vscode');
+      if (current === 'auto' || current === '') current = 'vscode';
+      const list = themes.listThemes();
+      const items: Item[] = [
+        { label: '$(color-mode) Follow VS Code', description: 'adapt Obsidian variables to the VS Code color theme', value: 'vscode' },
+        { label: '$(paintcan) Obsidian default', description: 'Obsidian default look', value: 'obsidian' },
+      ];
+      if (list.length) {
+        items.push({ label: 'Imported themes', kind: vscode.QuickPickItemKind.Separator });
+        for (const t of list) {
+          items.push({
+            label: `$(symbol-color) ${t.name}`,
+            description: [t.author ? `by ${t.author}` : '', t.version ?? '', t.origin === 'external' ? '(external folder)' : ''].filter(Boolean).join(' · '),
+            value: t.id,
+            theme: t,
+            buttons: t.origin === 'library' ? [removeButton] : [],
+          });
+        }
+      }
+      items.push(
+        { label: '', kind: vscode.QuickPickItemKind.Separator },
+        { label: '$(cloud-download) Import theme…', description: 'pick a theme folder, a themes folder, an Obsidian vault or a .css snippet', action: 'import' },
+        { label: '$(folder-opened) Open iMark themes folder', description: themes.libraryDir, action: 'folder' },
+      );
+      for (const it of items) if (it.value && it.value === current) it.description = `${it.description ?? ''} — current`.replace(/^ — /, '');
+      return items;
+    };
+
+    const qp = vscode.window.createQuickPick<Item>();
+    qp.title = 'iMark: Select theme';
+    qp.placeholder = 'Themes are stored in iMark\'s own library; the selection is saved in VS Code settings';
+    qp.matchOnDescription = true;
+    qp.items = build();
+    qp.onDidTriggerItemButton(async (e) => {
+      const t = e.item.theme;
+      if (!t) return;
+      const ok = await vscode.window.showWarningMessage(`Remove theme "${t.name}" from iMark?`, { modal: true }, 'Remove');
+      if (ok !== 'Remove') return;
+      await themes.removeTheme(t.id);
+      const cfg = vscode.workspace.getConfiguration('imark.theme');
+      if (cfg.get<string>('name') === t.id) await themes.setTheme('vscode');
+      qp.items = build();
+    });
+    qp.onDidAccept(async () => {
+      const picked = qp.selectedItems[0];
+      if (!picked) return;
+      if (picked.action === 'import') {
+        qp.hide();
+        const imported = await importThemes();
+        if (imported.length > 1) await selectTheme();
+        return;
+      }
+      if (picked.action === 'folder') {
+        await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(themes.libraryDir));
+        return;
+      }
+      if (picked.value) {
+        await themes.setTheme(picked.value);
+        qp.hide();
+      }
+    });
+    qp.onDidHide(() => qp.dispose());
+    qp.show();
+  }
 
   context.subscriptions.push(
     vscode.commands.registerCommand('imark.openInIMark', async (uri?: vscode.Uri) => {
@@ -47,33 +181,23 @@ export function activate(context: vscode.ExtensionContext): void {
       const current = cfg.get<boolean>('readableLineWidth', true);
       await cfg.update('readableLineWidth', !current, vscode.ConfigurationTarget.Global);
     }),
-    vscode.commands.registerCommand('imark.selectTheme', async () => {
-      const doc = provider.activeDocument?.uri ?? vscode.window.activeTextEditor?.document.uri ?? vscode.workspace.workspaceFolders?.[0]?.uri;
-      if (!doc) {
-        void vscode.window.showInformationMessage('iMark: open a Markdown file first.');
+    vscode.commands.registerCommand('imark.selectTheme', () => selectTheme()),
+    vscode.commands.registerCommand('imark.importTheme', (uri?: vscode.Uri) => importThemes(uri instanceof vscode.Uri ? [uri] : undefined)),
+    vscode.commands.registerCommand('imark.removeTheme', async () => {
+      const list = themes.listThemes().filter((t) => t.origin === 'library');
+      if (!list.length) {
+        void vscode.window.showInformationMessage('iMark: no imported themes.');
         return;
       }
-      const cfg = vscode.workspace.getConfiguration('imark.theme');
-      const current = cfg.get<string>('name', 'auto');
-      const list = themes.listThemes(doc);
-      const themesDir = themes.themesDir(doc);
-      type Item = vscode.QuickPickItem & { value: string };
-      const items: Item[] = [
-        { label: '$(sync) Auto', description: "use the vault's .obsidian/appearance.json", value: 'auto' },
-        { label: '$(color-mode) Follow VS Code', description: 'adapt Obsidian variables to the VS Code color theme', value: 'vscode' },
-        { label: '$(paintcan) Obsidian default', description: 'Obsidian default look', value: 'obsidian' },
-        ...list.map((t) => ({ label: `$(symbol-color) ${t.name}`, description: t.author ? `by ${t.author}` : '', detail: t.dir, value: t.id })),
-      ];
-      for (const it of items) if (it.value === current) it.picked = true;
-      const picked = await vscode.window.showQuickPick(items, {
-        title: themesDir ? `iMark: Obsidian themes in ${themesDir}` : 'iMark: no Obsidian themes folder found (set imark.theme.path)',
-        placeHolder: 'Select a theme',
-        matchOnDescription: true,
-      });
+      const picked = await vscode.window.showQuickPick(
+        list.map((t) => ({ label: t.name, description: t.author ? `by ${t.author}` : '', detail: t.dir, id: t.id })),
+        { title: 'iMark: Remove theme', placeHolder: 'Select a theme to remove from iMark' },
+      );
       if (!picked) return;
-      const target = vscode.workspace.workspaceFolders?.length ? vscode.ConfigurationTarget.Workspace : vscode.ConfigurationTarget.Global;
-      await cfg.update('name', picked.value, target);
+      await themes.removeTheme(picked.id);
+      if (vscode.workspace.getConfiguration('imark.theme').get<string>('name') === picked.id) await themes.setTheme('vscode');
     }),
+    vscode.commands.registerCommand('imark.openThemesFolder', () => vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(themes.libraryDir))),
   );
 }
 

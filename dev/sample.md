@@ -86,3 +86,109 @@ $$
 最后一段。
 
 [^1]: 这是脚注内容。
+
+## Mermaid 图表
+
+```mermaid
+flowchart LR
+  A[VS Code] --> B(iMark Webview)
+  B --> C{CodeMirror 6}
+  C -->|Live Preview| D[Obsidian DOM]
+  C -->|Reading| E[markdown-it]
+  D --> F[(Obsidian Theme)]
+  E --> F
+```
+
+```mermaid
+sequenceDiagram
+  participant W as Webview
+  participant H as Extension Host
+  W->>H: edit {gen, changes}
+  H->>H: applyEdit(TextDocument)
+  H-->>W: (silent) shadow == doc
+  Note over W,H: external change
+  H->>W: update {text, gen+1}
+```
+
+```mermaid
+classDiagram
+  class EditorSession { +shadow: string; +gen: number }
+  class ThemeManager { +listThemes(); +importFrom() }
+  IMarkEditorProvider --> EditorSession
+  IMarkEditorProvider --> ThemeManager
+```
+
+```mermaid
+stateDiagram-v2
+  [*] --> Live
+  Live --> Source: Cmd+/
+  Live --> Reading: Cmd+E
+  Reading --> Live: Cmd+E
+  Source --> Live: Cmd+/
+```
+
+```mermaid
+pie title 时间分配
+  "写作" : 45
+  "阅读" : 30
+  "整理" : 25
+```
+
+```mermaid
+gantt
+  title 发布计划
+  dateFormat YYYY-MM-DD
+  section 开发
+  编辑器核心 :done, a1, 2026-09-01, 5d
+  主题系统   :active, a2, 2026-09-06, 3d
+  Mermaid    : a3, after a2, 2d
+```
+
+```mermaid
+mindmap
+  root((iMark))
+    编辑
+      Live Preview
+      源码模式
+    渲染
+      KaTeX
+      Mermaid
+    主题
+      Obsidian 主题
+      VS Code 配色
+```
+
+```mermaid
+erDiagram
+  NOTE ||--o{ LINK : contains
+  NOTE { string title string path }
+  LINK { string target }
+```
+
+```mermaid
+gitGraph
+  commit
+  branch feature
+  commit
+  checkout main
+  merge feature
+```
+
+```mermaid
+timeline
+  title iMark 时间线
+  2026-09-08 : 首个版本 : 主题支持
+  2026-09-09 : Mermaid
+```
+
+```mermaid
+xychart-beta
+  title "字数增长"
+  x-axis [Mon, Tue, Wed, Thu]
+  y-axis "Words" 0 --> 1000
+  bar [200, 450, 700, 950]
+```
+
+```mermaid
+this is not valid mermaid
+```

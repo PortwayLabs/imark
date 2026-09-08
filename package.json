@@ -2,7 +2,7 @@
   "name": "imark",
   "displayName": "iMark",
   "description": "Typora / Obsidian style live-preview Markdown editor for VS Code, with Obsidian theme support.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "imark",
   "license": "MIT",
   "private": true,
@@ -91,6 +91,22 @@
         "command": "imark.toggleReadableLineWidth",
         "title": "Toggle Readable Line Width",
         "category": "iMark"
+      },
+      {
+        "command": "imark.importTheme",
+        "title": "Import Obsidian Theme…",
+        "category": "iMark",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "imark.removeTheme",
+        "title": "Remove Imported Theme…",
+        "category": "iMark"
+      },
+      {
+        "command": "imark.openThemesFolder",
+        "title": "Open Themes Folder",
+        "category": "iMark"
       }
     ],
     "menus": {
@@ -123,6 +139,11 @@
           "command": "imark.openInIMark",
           "when": "resourceExtname =~ /\\.(md|markdown|mdown|mkd)$/",
           "group": "navigation@50"
+        },
+        {
+          "command": "imark.importTheme",
+          "when": "explorerResourceIsFolder || resourceExtname == .css",
+          "group": "7_modification@90"
         }
       ],
       "commandPalette": [
@@ -160,13 +181,13 @@
       "properties": {
         "imark.theme.name": {
           "type": "string",
-          "default": "auto",
-          "markdownDescription": "Obsidian theme to use. `auto` reads the vault's `.obsidian/appearance.json`; `vscode` adapts Obsidian variables to the current VS Code color theme; `obsidian` uses Obsidian's default look; any other value is the folder name of a theme in the themes directory. Use **iMark: Select Obsidian Theme…** to pick interactively."
+          "default": "vscode",
+          "markdownDescription": "Theme to use: `vscode` (adapt Obsidian variables to the VS Code color theme), `obsidian` (Obsidian's default look) or the id of a theme imported into iMark's library. Use **iMark: Select Theme…** to pick, or **iMark: Import Obsidian Theme…** to add themes."
         },
         "imark.theme.path": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Directory containing Obsidian themes (usually `<vault>/.obsidian/themes`). Leave empty to auto-detect from the workspace or the folder tree of the current file."
+          "markdownDescription": "Optional additional folder of Obsidian themes to offer read-only (e.g. a vault's `.obsidian/themes`). Imported themes live in iMark's own storage regardless of this setting."
         },
         "imark.theme.mode": {
           "type": "string",
@@ -184,7 +205,7 @@
             "type": "string"
           },
           "default": [],
-          "markdownDescription": "Additional CSS snippet files to load after the theme. Absolute paths, or names of files inside the vault's `.obsidian/snippets` folder (with or without `.css`)."
+          "markdownDescription": "CSS snippets to load after the theme: file names imported into iMark's snippet library (see **Import Obsidian Theme…**) or absolute paths."
         },
         "imark.theme.accentColor": {
           "type": "string",
@@ -288,7 +309,8 @@
     "dompurify": "3.4.15",
     "katex": "0.18.7",
     "markdown-it": "15.0.1",
-    "markdown-it-footnote": "4.0.0"
+    "markdown-it-footnote": "4.0.0",
+    "mermaid": "11.17.2"
   },
   "devDependencies": {
     "@types/jsdom": "30.0.0",
