@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import { IMarkEditorProvider, VIEW_TYPE } from './editorProvider';
-import { ThemeManager, type ThemeEntry } from './themeManager';
+import { DEFAULT_THEME, ThemeManager, type ThemeEntry } from './themeManager';
 import { FileIndex } from './fileIndex';
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -93,24 +93,26 @@ export function activate(context: vscode.ExtensionContext): void {
     const removeButton: vscode.QuickInputButton = { iconPath: new vscode.ThemeIcon('trash'), tooltip: 'Remove this theme from iMark' };
     const build = (): Item[] => {
       const cfg = vscode.workspace.getConfiguration('imark.theme');
-      let current = cfg.get<string>('name', 'vscode');
-      if (current === 'auto' || current === '') current = 'vscode';
+      let current = cfg.get<string>('name', DEFAULT_THEME);
+      if (current === 'auto' || current === '') current = DEFAULT_THEME;
       const list = themes.listThemes();
+      const themeItem = (t: ThemeEntry): Item => ({
+        label: `$(symbol-color) ${t.name}`,
+        description: [t.author ? `by ${t.author}` : '', t.version ?? '', t.origin === 'external' ? '(external folder)' : t.origin === 'bundled' ? '(built-in)' : ''].filter(Boolean).join(' · '),
+        value: t.id,
+        theme: t,
+        buttons: t.origin === 'library' ? [removeButton] : [],
+      });
       const items: Item[] = [
+        { label: 'Built-in', kind: vscode.QuickPickItemKind.Separator },
+        ...list.filter((t) => t.origin === 'bundled').map(themeItem),
         { label: '$(color-mode) Follow VS Code', description: 'adapt Obsidian variables to the VS Code color theme', value: 'vscode' },
         { label: '$(paintcan) Obsidian default', description: 'Obsidian default look', value: 'obsidian' },
       ];
-      if (list.length) {
+      const imported = list.filter((t) => t.origin !== 'bundled');
+      if (imported.length) {
         items.push({ label: 'Imported themes', kind: vscode.QuickPickItemKind.Separator });
-        for (const t of list) {
-          items.push({
-            label: `$(symbol-color) ${t.name}`,
-            description: [t.author ? `by ${t.author}` : '', t.version ?? '', t.origin === 'external' ? '(external folder)' : ''].filter(Boolean).join(' · '),
-            value: t.id,
-            theme: t,
-            buttons: t.origin === 'library' ? [removeButton] : [],
-          });
-        }
+        for (const t of imported) items.push(themeItem(t));
       }
       items.push(
         { label: '', kind: vscode.QuickPickItemKind.Separator },
@@ -133,7 +135,7 @@ export function activate(context: vscode.ExtensionContext): void {
       if (ok !== 'Remove') return;
       await themes.removeTheme(t.id);
       const cfg = vscode.workspace.getConfiguration('imark.theme');
-      if (cfg.get<string>('name') === t.id) await themes.setTheme('vscode');
+      if (cfg.get<string>('name') === t.id) await themes.setTheme(DEFAULT_THEME);
       qp.items = build();
     });
     qp.onDidAccept(async () => {
@@ -195,7 +197,7 @@ export function activate(context: vscode.ExtensionContext): void {
       );
       if (!picked) return;
       await themes.removeTheme(picked.id);
-      if (vscode.workspace.getConfiguration('imark.theme').get<string>('name') === picked.id) await themes.setTheme('vscode');
+      if (vscode.workspace.getConfiguration('imark.theme').get<string>('name') === picked.id) await themes.setTheme(DEFAULT_THEME);
     }),
     vscode.commands.registerCommand('imark.openThemesFolder', () => vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(themes.libraryDir))),
   );

@@ -12,7 +12,7 @@
   "imark.command.removeTheme.title": "删除已导入的主题…",
   "imark.command.openThemesFolder.title": "打开主题库目录",
   "imark.config.title": "iMark",
-  "imark.config.theme.name.description": "使用的主题：`vscode`（把 Obsidian 变量映射到 VS Code 配色）、`obsidian`（Obsidian 默认外观）或已导入 iMark 主题库的主题 id。可通过 **iMark: Select Theme…** 选择，或用 **iMark: Import Obsidian Theme…** 导入主题。",
+  "imark.config.theme.name.description": "使用的主题：`Monokai Syntax`（内置默认主题）、`vscode`（把 Obsidian 变量映射到 VS Code 配色）、`obsidian`（Obsidian 默认外观）或已导入 iMark 主题库的主题 id。可通过 **iMark: Select Theme…** 选择，或用 **iMark: Import Obsidian Theme…** 导入主题。",
   "imark.config.theme.path.description": "可选的额外 Obsidian 主题目录（只读，例如某个 vault 的 `.obsidian/themes`）。无论此设置如何，导入的主题始终保存在 iMark 自己的存储目录中。",
   "imark.config.theme.mode.description": "Obsidian 主题的明暗变体。`auto` 跟随 VS Code 配色主题。",
   "imark.config.theme.snippets.description": "主题之后加载的 CSS 片段：已导入 iMark 片段库的文件名（见 **Import Obsidian Theme…**）或绝对路径。",

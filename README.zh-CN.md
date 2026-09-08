@@ -9,7 +9,7 @@ iMark 把 **Typora / Obsidian 的实时预览（Live Preview）编辑体验**带
 - **实时预览编辑**：标题、粗体/斜体/删除线/高亮、行内代码、链接、图片、列表、任务复选框、引用、代码块（语法高亮 + 语言角标）、表格、Callout、KaTeX 数学公式、脚注、`%%注释%%`、YAML 属性。光标离开元素时隐藏 Markdown 标记，进入时显示（与 Obsidian 一致）。
 - **三种模式**：Live Preview / 源码模式 / 阅读视图（`Cmd/Ctrl+E` 切换阅读视图，`Cmd/Ctrl+/` 切换源码模式）。
 - **Obsidian 语法**：`[[Wikilink|别名]]`、`![[嵌入.png|300]]`、`![[笔记#标题]]`、`#标签`、`==高亮==`、`> [!note]` Callout、`$...$` / `$$...$$` 公式。
-- **Obsidian 主题**：通过 **iMark: Import Obsidian Theme…** 弹窗选择主题目录 / `.obsidian` 目录 / vault 根目录 / `.css` 片段导入，主题文件复制到 iMark 自己的主题库（VS Code 为插件分配的 globalStorage 目录，不占用 `.obsidian/themes`）；导入 vault 时可一键套用其外观配置（当前主题、明暗、强调色、启用的片段）。用 **iMark: Select Theme…** 切换，选择保存在 VS Code 设置 `imark.theme.name` 中；主题文件修改后自动热更新。默认提供“跟随 VS Code 配色”的自适应主题。
+- **Obsidian 主题**：通过 **iMark: Import Obsidian Theme…** 弹窗选择主题目录 / `.obsidian` 目录 / vault 根目录 / `.css` 片段导入，主题文件复制到 iMark 自己的主题库（VS Code 为插件分配的 globalStorage 目录，不占用 `.obsidian/themes`）；导入 vault 时可一键套用其外观配置（当前主题、明暗、强调色、启用的片段）。用 **iMark: Select Theme…** 切换，选择保存在 VS Code 设置 `imark.theme.name` 中；主题文件修改后自动热更新。插件内置 **Monokai Syntax** 主题（作者 lat3ncy，MIT 许可）作为默认主题，另外提供“跟随 VS Code 配色”自适应主题与 Obsidian 默认外观。
 - **Mermaid**：支持 Mermaid 全部图表类型（flowchart、sequence、class、state、ER、gantt、pie、mindmap、timeline、gitGraph、journey、quadrant、xychart、sankey、block、requirement、C4 等，按需懒加载），实时预览与阅读视图均可渲染并跟随明暗主题；**点击图表弹出预览层**，支持滚轮/双击缩放、拖拽平移、1:1 / 适应窗口、复制 SVG，方便查看复杂架构图。
 - **编辑效率**：`[[` 自动补全笔记名；粘贴 / 拖入图片自动保存到附件目录并插入链接；Markdown 符号自动配对；`Cmd+B/I/K`、`Cmd+1~6` 标题、`Cmd+Enter` 切换复选框、`Tab/Shift+Tab` 列表缩进等 Typora 风格快捷键。
 - **与 VS Code 深度集成**：作为 `.md` 文件的默认编辑器（可随时 “Reopen With…” 切回文本编辑器），复用 VS Code 的保存 / 撤销 / Git / 多窗格；状态栏显示当前模式与字数。
@@ -29,7 +29,7 @@ npm run build
 
 | 设置 | 说明 | 默认 |
 | --- | --- | --- |
-| `imark.theme.name` | `vscode`（跟随 VS Code 配色）/ `obsidian`（Obsidian 默认外观）/ 已导入主题的 id | `vscode` |
+| `imark.theme.name` | `Monokai Syntax`（内置）/ `vscode`（跟随 VS Code 配色）/ `obsidian`（Obsidian 默认外观）/ 已导入主题的 id | `Monokai Syntax` |
 | `imark.theme.path` | 可选的额外主题目录（只读，例如某个 vault 的 `.obsidian/themes`）；导入的主题始终保存在 iMark 自己的主题库 | `""` |
 | `imark.theme.mode` | `auto` / `light` / `dark` | `auto` |
 | `imark.theme.snippets` | 加载的 CSS 片段：已导入到 iMark 片段库的文件名，或绝对路径 | `[]` |
@@ -53,7 +53,7 @@ npm run build
 2. 在弹窗中选择：某个主题文件夹（含 `theme.css`）、整个 `themes` 目录、`.obsidian` 目录或 vault 根目录（会导入全部主题并询问是否套用 `appearance.json` 中的外观配置）、或单个 `.css` 片段。
 3. 运行 **iMark: Select Theme…** 切换主题；列表中每个已导入主题右侧有删除按钮，也可通过 **iMark: Open Themes Folder** 打开主题库目录。
 
-主题库位置：`<VS Code 用户数据目录>/User/globalStorage/imark.imark/themes`（macOS 为 `~/Library/Application Support/Code/User/globalStorage/imark.imark/themes`）。
+内置主题位于插件目录的 `media/themes/`。导入主题的主题库位置：`<VS Code 用户数据目录>/User/globalStorage/imark.imark/themes`（macOS 为 `~/Library/Application Support/Code/User/globalStorage/imark.imark/themes`）。
 
 ## Mermaid
 

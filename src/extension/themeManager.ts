@@ -8,9 +8,12 @@ import { appearanceMode, copySnippet, copyTheme, findVaultDir, planImport, theme
 
 export interface ThemeEntry extends ThemeSource {
   cssPath: string;
-  /** `library` = imported into iMark, `external` = from `imark.theme.path`. */
-  origin: 'library' | 'external';
+  /** `bundled` = shipped with iMark, `library` = imported into iMark, `external` = from `imark.theme.path`. */
+  origin: 'bundled' | 'library' | 'external';
 }
+
+/** Theme shipped with the extension and used when nothing else is configured. */
+export const DEFAULT_THEME = 'Monokai Syntax';
 
 export interface ResolvedTheme {
   name: string;
@@ -67,8 +70,10 @@ export class ThemeManager implements vscode.Disposable {
   private disposables: vscode.Disposable[] = [];
   readonly libraryDir: string;
   readonly snippetsDir: string;
+  readonly bundledDir: string;
 
   constructor(private readonly context: vscode.ExtensionContext) {
+    this.bundledDir = path.join(context.extensionUri.fsPath, 'media', 'themes');
     this.libraryDir = path.join(context.globalStorageUri.fsPath, 'themes');
     this.snippetsDir = path.join(context.globalStorageUri.fsPath, 'snippets');
     fs.mkdirSync(this.libraryDir, { recursive: true });
@@ -99,11 +104,20 @@ export class ThemeManager implements vscode.Disposable {
   }
 
   listThemes(): ThemeEntry[] {
-    const lib = themesIn(this.libraryDir).map<ThemeEntry>((t) => ({ ...t, cssPath: path.join(t.dir, 'theme.css'), origin: 'library' }));
+    const entry = (origin: ThemeEntry['origin']) => (t: ThemeSource): ThemeEntry => ({ ...t, cssPath: path.join(t.dir, 'theme.css'), origin });
+    const bundled = themesIn(this.bundledDir).map(entry('bundled'));
+    const lib = themesIn(this.libraryDir).map(entry('library'));
     const ext = this.externalDir();
-    const external = ext ? themesIn(ext).map<ThemeEntry>((t) => ({ ...t, cssPath: path.join(t.dir, 'theme.css'), origin: 'external' })) : [];
+    const external = ext ? themesIn(ext).map(entry('external')) : [];
+    // A theme imported by the user shadows a bundled/external one with the same id.
+    const out: ThemeEntry[] = [...lib];
     const ids = new Set(lib.map((t) => t.id));
-    return [...lib, ...external.filter((t) => !ids.has(t.id))];
+    for (const t of [...bundled, ...external]) {
+      if (ids.has(t.id)) continue;
+      ids.add(t.id);
+      out.push(t);
+    }
+    return out;
   }
 
   findTheme(idOrName: string): ThemeEntry | undefined {
@@ -209,8 +223,8 @@ export class ThemeManager implements vscode.Disposable {
 
   resolve(_docUri?: vscode.Uri): ResolvedTheme {
     const cfg = this.config();
-    let requested = cfg.get<string>('name', 'vscode').trim();
-    if (requested === 'auto' || requested === '') requested = 'vscode';
+    let requested = cfg.get<string>('name', DEFAULT_THEME).trim();
+    if (requested === 'auto' || requested === '') requested = DEFAULT_THEME;
     const mode = cfg.get<ThemeMode>('mode', 'auto');
     const accentColor = cfg.get<string>('accentColor', '').trim();
 
@@ -229,9 +243,16 @@ export class ThemeManager implements vscode.Disposable {
         name = t.name;
         cssPaths.push(t.cssPath);
       } else {
-        kind = 'obsidian';
-        name = `Obsidian (theme "${requested}" not found)`;
         missing = requested;
+        const fallback = this.findTheme(DEFAULT_THEME);
+        if (fallback) {
+          kind = 'theme';
+          name = `${fallback.name} (theme "${requested}" not found)`;
+          cssPaths.push(fallback.cssPath);
+        } else {
+          kind = 'obsidian';
+          name = `Obsidian (theme "${requested}" not found)`;
+        }
       }
     }
 
@@ -274,7 +295,7 @@ export class ThemeManager implements vscode.Disposable {
 
   /** Roots the webview must be allowed to load theme assets from. */
   resourceRoots(resolved: ResolvedTheme): vscode.Uri[] {
-    const roots = new Set<string>([this.context.globalStorageUri.fsPath]);
+    const roots = new Set<string>([this.context.globalStorageUri.fsPath, this.bundledDir]);
     const ext = this.externalDir();
     if (ext) roots.add(ext);
     for (const p of resolved.cssPaths) roots.add(path.dirname(p));

@@ -55,8 +55,12 @@ const config: EditorConfig = {
   platform: 'mac',
 };
 
+const BUNDLED = ['Monokai Syntax'];
+
 function themeInfo(name: string | null, mode: 'light' | 'dark' | 'auto' = 'auto'): ThemeInfo {
-  if (!name || name === 'vscode') return { name: 'Follow VS Code', kind: 'vscode', cssUris: ['/media/css/vscode-bridge.css', '/dev/vscode-vars.css'], mode, extraCss: '' };
+  if (!name) name = BUNDLED[0];
+  if (BUNDLED.includes(name)) return { name, kind: 'theme', cssUris: [`/media/themes/${encodeURIComponent(name)}/theme.css`], mode, extraCss: '' };
+  if (name === 'vscode') return { name: 'Follow VS Code', kind: 'vscode', cssUris: ['/media/css/vscode-bridge.css', '/dev/vscode-vars.css'], mode, extraCss: '' };
   if (name === 'obsidian') return { name: 'Obsidian', kind: 'obsidian', cssUris: [], mode, extraCss: '' };
   return { name, kind: 'theme', cssUris: [`/themes/${encodeURIComponent(name)}/theme.css`], mode, extraCss: '' };
 }
@@ -132,13 +136,14 @@ function buildDevBar(current: string | null) {
     o.textContent = label;
     sel.appendChild(o);
   };
+  for (const b of BUNDLED) opt(b, `${b} (built-in)`);
   opt('vscode', 'Follow VS Code');
   opt('obsidian', 'Obsidian default');
   fetch('/themes/index.json')
     .then((r) => r.json())
     .then((names: string[]) => {
       for (const n of names) opt(n);
-      sel.value = current ?? 'vscode';
+      sel.value = current ?? BUNDLED[0];
     });
   sel.addEventListener('change', () => {
     params.set('theme', sel.value);

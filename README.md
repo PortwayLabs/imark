@@ -9,7 +9,7 @@ iMark brings the **live-preview editing experience of Typora and Obsidian** into
 - **Live preview editing**: headings, bold / italic / strikethrough / highlight, inline code, links, images, lists, task checkboxes, blockquotes, code blocks (syntax highlighting + language flair), tables, callouts, KaTeX math, footnotes, `%%comments%%` and YAML properties. Markdown markup is hidden while the cursor is elsewhere and revealed when the cursor enters the element, exactly like Obsidian.
 - **Three modes**: Live Preview / Source / Reading (`Cmd/Ctrl+E` toggles reading view, `Cmd/Ctrl+/` toggles source mode).
 - **Obsidian syntax**: `[[Wikilink|alias]]`, `![[embed.png|300]]`, `![[Note#Heading]]`, `#tags`, `==highlight==`, `> [!note]` callouts, `$...$` / `$$...$$` math.
-- **Obsidian themes**: run **iMark: Import Obsidian Theme…** and pick a theme folder, a `.obsidian` folder, a vault root or a `.css` snippet in the file dialog. Theme files are copied into iMark's own theme library (the globalStorage folder VS Code assigns to the extension, so `.obsidian/themes` is never touched). Importing a vault can also apply its appearance settings in one step (current theme, light/dark, accent color, enabled snippets). Switch with **iMark: Select Theme…**; the choice is stored in the VS Code setting `imark.theme.name` and theme files hot-reload when edited. A "Follow VS Code" adaptive theme is used by default.
+- **Obsidian themes**: run **iMark: Import Obsidian Theme…** and pick a theme folder, a `.obsidian` folder, a vault root or a `.css` snippet in the file dialog. Theme files are copied into iMark's own theme library (the globalStorage folder VS Code assigns to the extension, so `.obsidian/themes` is never touched). Importing a vault can also apply its appearance settings in one step (current theme, light/dark, accent color, enabled snippets). Switch with **iMark: Select Theme…**; the choice is stored in the VS Code setting `imark.theme.name` and theme files hot-reload when edited. iMark ships with the **Monokai Syntax** theme (by lat3ncy, MIT) as the default; a "Follow VS Code" adaptive theme and Obsidian's default look are built in as well.
 - **Mermaid**: every Mermaid diagram type (flowchart, sequence, class, state, ER, gantt, pie, mindmap, timeline, gitGraph, journey, quadrant, xychart, sankey, block, requirement, C4, … loaded on demand) renders in live preview and reading view and follows the light/dark theme. **Click a diagram to open a preview modal** with wheel / double-click zoom, drag to pan, 1:1 / fit-to-window and copy-as-SVG, which makes large architecture diagrams easy to inspect.
 - **Editing helpers**: `[[` completes note names; pasted or dropped images are saved into the attachment folder and linked automatically; Markdown symbols auto-pair; Typora-style shortcuts such as `Cmd+B/I/K`, `Cmd+1…6` for headings, `Cmd+Enter` to toggle a checkbox and `Tab/Shift+Tab` for list indentation.
 - **Deep VS Code integration**: iMark is the default editor for `.md` files (use "Reopen With…" to switch back to the text editor at any time) and builds on VS Code's save / undo / Git / split editors; the status bar shows the current mode and word count.
@@ -29,7 +29,7 @@ npm run build
 
 | Setting | Description | Default |
 | --- | --- | --- |
-| `imark.theme.name` | `vscode` (adapt to the VS Code color theme) / `obsidian` (Obsidian's default look) / id of an imported theme | `vscode` |
+| `imark.theme.name` | `Monokai Syntax` (built-in) / `vscode` (adapt to the VS Code color theme) / `obsidian` (Obsidian's default look) / id of an imported theme | `Monokai Syntax` |
 | `imark.theme.path` | Optional additional themes folder, read-only (for example a vault's `.obsidian/themes`); imported themes always live in iMark's own library | `""` |
 | `imark.theme.mode` | `auto` / `light` / `dark` | `auto` |
 | `imark.theme.snippets` | CSS snippets to load: file names imported into iMark's snippet library, or absolute paths | `[]` |
@@ -53,7 +53,7 @@ npm run build
 2. In the dialog pick a theme folder (containing `theme.css`), a whole `themes` folder, a `.obsidian` folder or a vault root (imports every theme and offers to apply the appearance settings found in `appearance.json`), or a single `.css` snippet.
 3. Run **iMark: Select Theme…** to switch themes. Every imported theme has a remove button in the list; **iMark: Open Themes Folder** reveals the library on disk.
 
-Library location: `<VS Code user data>/User/globalStorage/imark.imark/themes` (on macOS `~/Library/Application Support/Code/User/globalStorage/imark.imark/themes`).
+Built-in themes live in `media/themes/` inside the extension. Library location for imported themes: `<VS Code user data>/User/globalStorage/imark.imark/themes` (on macOS `~/Library/Application Support/Code/User/globalStorage/imark.imark/themes`).
 
 ## Mermaid
 

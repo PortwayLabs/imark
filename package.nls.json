@@ -12,7 +12,7 @@
   "imark.command.removeTheme.title": "Remove Imported Theme…",
   "imark.command.openThemesFolder.title": "Open Themes Folder",
   "imark.config.title": "iMark",
-  "imark.config.theme.name.description": "Theme to use: `vscode` (adapt Obsidian variables to the VS Code color theme), `obsidian` (Obsidian's default look) or the id of a theme imported into iMark's library. Use **iMark: Select Theme…** to pick, or **iMark: Import Obsidian Theme…** to add themes.",
+  "imark.config.theme.name.description": "Theme to use: `Monokai Syntax` (built-in default), `vscode` (adapt Obsidian variables to the VS Code color theme), `obsidian` (Obsidian's default look) or the id of a theme imported into iMark's library. Use **iMark: Select Theme…** to pick, or **iMark: Import Obsidian Theme…** to add themes.",
   "imark.config.theme.path.description": "Optional additional folder of Obsidian themes to offer read-only (e.g. a vault's `.obsidian/themes`). Imported themes live in iMark's own storage regardless of this setting.",
   "imark.config.theme.mode.description": "Light or dark variant of the Obsidian theme. `auto` follows the VS Code color theme.",
   "imark.config.theme.snippets.description": "CSS snippets to load after the theme: file names imported into iMark's snippet library (see **Import Obsidian Theme…**) or absolute paths.",

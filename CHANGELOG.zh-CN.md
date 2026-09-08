@@ -2,6 +2,10 @@
 
 [English](CHANGELOG.md) | **简体中文**
 
+## 未发布
+
+- 内置 **Monokai Syntax** 主题（作者 lat3ncy，MIT 许可）并作为默认主题；主题选择器单独列出内置主题。
+
 ## 0.2.2 (2026-09-08)
 - 发布脚本（`npm run release -- <patch|minor|major|x.y.z>`）：自动升版本号、为中英文更新日志加日期、执行类型检查 / 单元测试 / VS Code 集成测试 / 生产构建、打包 VSIX 到 `release/`、提交并打 tag；可选 `--push`、`--publish`（Marketplace）与 `--github-release`。
 

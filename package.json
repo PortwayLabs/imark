@@ -181,7 +181,7 @@
       "properties": {
         "imark.theme.name": {
           "type": "string",
-          "default": "vscode",
+          "default": "Monokai Syntax",
           "markdownDescription": "%imark.config.theme.name.description%"
         },
         "imark.theme.path": {
