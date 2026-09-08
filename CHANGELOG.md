@@ -2,8 +2,7 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
-## Unreleased
-
+## 0.2.9 (2026-09-08)
 - Table cells are no longer capped at 40em: a cell wraps only when it is wider than the table container, so tables show their full natural width in reading view and live preview when the readable line width is off (scrolling only when the table is wider than the view).
 
 ## 0.2.8 (2026-09-08)
