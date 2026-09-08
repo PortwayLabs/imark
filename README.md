@@ -1,90 +1,92 @@
-# iMark — Typora / Obsidian 风格的 VS Code Markdown 编辑器
+# iMark — Typora / Obsidian style Markdown editor for VS Code
 
-iMark 把 **Typora / Obsidian 的实时预览（Live Preview）编辑体验**带进 VS Code，并且可以**直接加载 Obsidian 社区主题**（`.obsidian/themes/<主题>/theme.css`）。
+**English** | [简体中文](README.zh-CN.md)
 
-## 特性
+iMark brings the **live-preview editing experience of Typora and Obsidian** into VS Code, and it can **load Obsidian community themes unchanged**.
 
-- **实时预览编辑**：标题、粗体/斜体/删除线/高亮、行内代码、链接、图片、列表、任务复选框、引用、代码块（语法高亮 + 语言角标）、表格、Callout、KaTeX 数学公式、脚注、`%%注释%%`、YAML 属性。光标离开元素时隐藏 Markdown 标记，进入时显示（与 Obsidian 一致）。
-- **三种模式**：Live Preview / 源码模式 / 阅读视图（`Cmd/Ctrl+E` 切换阅读视图，`Cmd/Ctrl+/` 切换源码模式）。
-- **Obsidian 语法**：`[[Wikilink|别名]]`、`![[嵌入.png|300]]`、`![[笔记#标题]]`、`#标签`、`==高亮==`、`> [!note]` Callout、`$...$` / `$$...$$` 公式。
-- **Obsidian 主题**：通过 **iMark: Import Obsidian Theme…** 弹窗选择主题目录 / `.obsidian` 目录 / vault 根目录 / `.css` 片段导入，主题文件复制到 iMark 自己的主题库（VS Code 为插件分配的 globalStorage 目录，不占用 `.obsidian/themes`）；导入 vault 时可一键套用其外观配置（当前主题、明暗、强调色、启用的片段）。用 **iMark: Select Theme…** 切换，选择保存在 VS Code 设置 `imark.theme.name` 中；主题文件修改后自动热更新。默认提供“跟随 VS Code 配色”的自适应主题。
-- **Mermaid**：支持 Mermaid 全部图表类型（flowchart、sequence、class、state、ER、gantt、pie、mindmap、timeline、gitGraph、journey、quadrant、xychart、sankey、block、requirement、C4 等，按需懒加载），实时预览与阅读视图均可渲染并跟随明暗主题；**点击图表弹出预览层**，支持滚轮/双击缩放、拖拽平移、1:1 / 适应窗口、复制 SVG，方便查看复杂架构图。
-- **编辑效率**：`[[` 自动补全笔记名；粘贴 / 拖入图片自动保存到附件目录并插入链接；Markdown 符号自动配对；`Cmd+B/I/K`、`Cmd+1~6` 标题、`Cmd+Enter` 切换复选框、`Tab/Shift+Tab` 列表缩进等 Typora 风格快捷键。
-- **与 VS Code 深度集成**：作为 `.md` 文件的默认编辑器（可随时 “Reopen With…” 切回文本编辑器），撑起 VS Code 的保存 / 撤销 / Git / 多窗格；状态栏显示当前模式与字数。
+## Features
 
-## 安装与运行
+- **Live preview editing**: headings, bold / italic / strikethrough / highlight, inline code, links, images, lists, task checkboxes, blockquotes, code blocks (syntax highlighting + language flair), tables, callouts, KaTeX math, footnotes, `%%comments%%` and YAML properties. Markdown markup is hidden while the cursor is elsewhere and revealed when the cursor enters the element, exactly like Obsidian.
+- **Three modes**: Live Preview / Source / Reading (`Cmd/Ctrl+E` toggles reading view, `Cmd/Ctrl+/` toggles source mode).
+- **Obsidian syntax**: `[[Wikilink|alias]]`, `![[embed.png|300]]`, `![[Note#Heading]]`, `#tags`, `==highlight==`, `> [!note]` callouts, `$...$` / `$$...$$` math.
+- **Obsidian themes**: run **iMark: Import Obsidian Theme…** and pick a theme folder, a `.obsidian` folder, a vault root or a `.css` snippet in the file dialog. Theme files are copied into iMark's own theme library (the globalStorage folder VS Code assigns to the extension, so `.obsidian/themes` is never touched). Importing a vault can also apply its appearance settings in one step (current theme, light/dark, accent color, enabled snippets). Switch with **iMark: Select Theme…**; the choice is stored in the VS Code setting `imark.theme.name` and theme files hot-reload when edited. A "Follow VS Code" adaptive theme is used by default.
+- **Mermaid**: every Mermaid diagram type (flowchart, sequence, class, state, ER, gantt, pie, mindmap, timeline, gitGraph, journey, quadrant, xychart, sankey, block, requirement, C4, … loaded on demand) renders in live preview and reading view and follows the light/dark theme. **Click a diagram to open a preview modal** with wheel / double-click zoom, drag to pan, 1:1 / fit-to-window and copy-as-SVG, which makes large architecture diagrams easy to inspect.
+- **Editing helpers**: `[[` completes note names; pasted or dropped images are saved into the attachment folder and linked automatically; Markdown symbols auto-pair; Typora-style shortcuts such as `Cmd+B/I/K`, `Cmd+1…6` for headings, `Cmd+Enter` to toggle a checkbox and `Tab/Shift+Tab` for list indentation.
+- **Deep VS Code integration**: iMark is the default editor for `.md` files (use "Reopen With…" to switch back to the text editor at any time) and builds on VS Code's save / undo / Git / split editors; the status bar shows the current mode and word count.
+
+## Install & run
 
 ```bash
 npm install
 npm run build
 ```
 
-- **调试**：在 VS Code 中按 `F5`（Run iMark Extension）。
-- **打包**：`npm run package` 生成 `imark-<version>.vsix`，再执行 `code --install-extension imark-0.1.0.vsix`。
-- **浏览器开发环境**（不依赖 VS Code，用于调样式）：`npm run serve` 然后打开 <http://localhost:8765/>，右下角可以切换 Obsidian 主题 / 明暗 / 模式。
+- **Debug**: press `F5` in VS Code (Run iMark Extension).
+- **Package**: `npm run package` produces `imark-<version>.vsix`; install it with `code --install-extension imark-<version>.vsix`.
+- **Browser harness** (no VS Code needed, handy for styling work): `npm run serve`, then open <http://localhost:8765/>. The panel in the bottom-right corner switches Obsidian themes, light/dark and editor modes.
 
-## 配置
+## Settings
 
-| 设置 | 说明 | 默认 |
+| Setting | Description | Default |
 | --- | --- | --- |
-| `imark.theme.name` | `vscode`（跟随 VS Code 配色）/ `obsidian`（Obsidian 默认外观）/ 已导入主题的 id | `vscode` |
-| `imark.theme.path` | 可选的额外主题目录（只读，例如某个 vault 的 `.obsidian/themes`）；导入的主题始终保存在 iMark 自己的主题库 | `""` |
+| `imark.theme.name` | `vscode` (adapt to the VS Code color theme) / `obsidian` (Obsidian's default look) / id of an imported theme | `vscode` |
+| `imark.theme.path` | Optional additional themes folder, read-only (for example a vault's `.obsidian/themes`); imported themes always live in iMark's own library | `""` |
 | `imark.theme.mode` | `auto` / `light` / `dark` | `auto` |
-| `imark.theme.snippets` | 加载的 CSS 片段：已导入到 iMark 片段库的文件名，或绝对路径 | `[]` |
-| `imark.theme.accentColor` | 强调色，如 `#7c3aed` | `""` |
+| `imark.theme.snippets` | CSS snippets to load: file names imported into iMark's snippet library, or absolute paths | `[]` |
+| `imark.theme.accentColor` | Accent color, e.g. `#7c3aed` | `""` |
 | `imark.editor.defaultMode` | `live` / `source` / `reading` | `live` |
-| `imark.editor.readableLineWidth` | 限制行宽（Obsidian 的 Readable line length） | `true` |
-| `imark.editor.showInlineTitle` | 在正文顶部显示文件名标题 | `true` |
-| `imark.editor.showHeader` | 显示 Obsidian 风格的视图头部 | `true` |
-| `imark.editor.fontSize` | 字号（px），0 使用主题默认 | `0` |
-| `imark.editor.lineNumbers` | 源码模式显示行号 | `false` |
-| `imark.editor.spellcheck` | 启用拼写检查 | `false` |
-| `imark.editor.autoPairMarkdown` | 自动配对 `*` `_` `` ` `` `~` `=` `$` | `true` |
-| `imark.editor.smartClickLinks` | 标记隐藏时单击即可打开链接（`Cmd/Ctrl+点击` 始终可用） | `true` |
-| `imark.attachments.folder` | 粘贴图片的保存目录（相对于笔记） | `assets` |
-| `imark.attachments.linkStyle` | 插入图片链接的语法：`markdown` / `wikilink` | `markdown` |
+| `imark.editor.readableLineWidth` | Limit the line width (Obsidian's "Readable line length") | `true` |
+| `imark.editor.showInlineTitle` | Show the file name as a title above the note | `true` |
+| `imark.editor.showHeader` | Show the Obsidian-style view header | `true` |
+| `imark.editor.fontSize` | Font size in px; 0 uses the theme default | `0` |
+| `imark.editor.lineNumbers` | Show line numbers in source mode | `false` |
+| `imark.editor.spellcheck` | Enable spell checking | `false` |
+| `imark.editor.autoPairMarkdown` | Auto-pair `*` `_` `` ` `` `~` `=` `$` | `true` |
+| `imark.editor.smartClickLinks` | Open links with a plain click while their markup is hidden (`Cmd/Ctrl+click` always works) | `true` |
+| `imark.attachments.folder` | Folder for pasted images, relative to the note | `assets` |
+| `imark.attachments.linkStyle` | Link syntax for inserted images: `markdown` / `wikilink` | `markdown` |
 
-## 主题管理
+## Theme management
 
-1. 命令面板运行 **iMark: Import Obsidian Theme…**（或在资源管理器中右键文件夹 → Import Obsidian Theme…）。
-2. 在弹窗中选择：某个主题文件夹（含 `theme.css`）、整个 `themes` 目录、`.obsidian` 目录或 vault 根目录（会导入全部主题并询问是否套用 `appearance.json` 中的外观配置）、或单个 `.css` 片段。
-3. 运行 **iMark: Select Theme…** 切换主题；列表中每个已导入主题右侧有删除按钮，也可通过 **iMark: Open Themes Folder** 打开主题库目录。
+1. Run **iMark: Import Obsidian Theme…** from the command palette (or right-click a folder in the Explorer → Import Obsidian Theme…).
+2. In the dialog pick a theme folder (containing `theme.css`), a whole `themes` folder, a `.obsidian` folder or a vault root (imports every theme and offers to apply the appearance settings found in `appearance.json`), or a single `.css` snippet.
+3. Run **iMark: Select Theme…** to switch themes. Every imported theme has a remove button in the list; **iMark: Open Themes Folder** reveals the library on disk.
 
-主题库位置：`<VS Code 用户数据目录>/User/globalStorage/imark.imark/themes`（macOS 为 `~/Library/Application Support/Code/User/globalStorage/imark.imark/themes`）。
+Library location: `<VS Code user data>/User/globalStorage/imark.imark/themes` (on macOS `~/Library/Application Support/Code/User/globalStorage/imark.imark/themes`).
 
 ## Mermaid
 
-用 ```` ```mermaid ```` 代码块书写图表。光标离开代码块后即渲染为图表；点击图表打开预览弹窗（`Esc` 关闭，`+`/`-`/`0`/`1` 缩放，滚轮缩放，拖拽平移），右上角可复制 SVG。语法错误时在原位显示错误信息，点击错误信息回到源码。
+Write diagrams in ```` ```mermaid ```` code blocks. The block renders as soon as the cursor leaves it. Click the diagram to open the preview modal (`Esc` closes, `+` / `-` / `0` / `1` zoom, wheel to zoom, drag to pan); the toolbar copies the SVG. Syntax errors are shown in place; clicking the error returns to the source.
 
-## 快捷键（编辑器内）
+## Keyboard shortcuts (inside the editor)
 
-| 快捷键 | 功能 |
+| Shortcut | Action |
 | --- | --- |
-| `Cmd/Ctrl+B` / `I` | 粗体 / 斜体 |
-| `Cmd/Ctrl+\`` | 行内代码 |
-| `Cmd/Ctrl+Shift+H` | 高亮 |
-| `Cmd/Ctrl+Shift+X` 或 `Alt+Shift+5` | 删除线 |
-| `Cmd/Ctrl+K` / `Cmd/Ctrl+Shift+K` | 插入链接 / Wikilink |
-| `Cmd/Ctrl+0…6` | 段落 / 一~六级标题 |
-| `Cmd/Ctrl+Alt+U / O / X / Q` | 无序列表 / 有序列表 / 任务列表 / 引用 |
-| `Cmd/Ctrl+Alt+C / T / M / N / -` | 代码块 / 表格 / 公式块 / Callout / 分隔线 |
-| `Cmd/Ctrl+Enter` | 切换复选框（无复选框时跟随光标处链接） |
-| `Alt+Enter` | 打开光标处链接 |
-| `Cmd/Ctrl+E` | 阅读视图 ⇄ 编辑 |
-| `Cmd/Ctrl+/` | Live Preview ⇄ 源码模式 |
-| `Tab` / `Shift+Tab` | 列表缩进 / 反缩进 |
-| `Cmd/Ctrl+F` | 查找 / 替换 |
+| `Cmd/Ctrl+B` / `I` | Bold / italic |
+| `Cmd/Ctrl+\`` | Inline code |
+| `Cmd/Ctrl+Shift+H` | Highlight |
+| `Cmd/Ctrl+Shift+X` or `Alt+Shift+5` | Strikethrough |
+| `Cmd/Ctrl+K` / `Cmd/Ctrl+Shift+K` | Insert link / wikilink |
+| `Cmd/Ctrl+0…6` | Paragraph / heading level 1–6 |
+| `Cmd/Ctrl+Alt+U / O / X / Q` | Bullet list / numbered list / task list / blockquote |
+| `Cmd/Ctrl+Alt+C / T / M / N / -` | Code block / table / math block / callout / horizontal rule |
+| `Cmd/Ctrl+Enter` | Toggle checkbox (follows the link under the cursor when there is no checkbox) |
+| `Alt+Enter` | Follow the link under the cursor |
+| `Cmd/Ctrl+E` | Reading view ⇄ editing |
+| `Cmd/Ctrl+/` | Live Preview ⇄ Source mode |
+| `Tab` / `Shift+Tab` | Indent / outdent list item |
+| `Cmd/Ctrl+F` | Find / replace |
 
-## 工作原理
+## How it works
 
-Webview 中运行 CodeMirror 6，并生成与 Obsidian 相同结构的 DOM（`.markdown-source-view.mod-cm6.is-live-preview .cm-s-obsidian`、`HyperMD-header-N`、`.cm-formatting`、`.callout`、`.cm-table-widget`…）。`media/css/obsidian-vars.css` 提供了 Obsidian 默认 CSS 变量，`obsidian-base.css` 用这些变量绘制编辑器，因此 Obsidian 主题只需按原样加载即可生效。文档同步通过 `CustomTextEditorProvider` 完成：Webview 发送增量修改 → 扩展应用到 `TextDocument`；外部修改则以最小 diff 回推到 Webview。
+A CodeMirror 6 editor runs inside the webview and produces the same DOM structure Obsidian does (`.markdown-source-view.mod-cm6.is-live-preview .cm-s-obsidian`, `HyperMD-header-N`, `.cm-formatting`, `.callout`, `.cm-table-widget`, …). `media/css/obsidian-vars.css` provides Obsidian's default CSS variables and `obsidian-base.css` draws the editor with them, so an Obsidian theme only has to be loaded as-is. Document synchronization goes through a `CustomTextEditorProvider`: the webview sends incremental changes that the extension applies to the `TextDocument`; external changes are pushed back to the webview as a minimal diff.
 
-## 开发
+## Development
 
 ```bash
-npm run watch        # 增量构建
-npm run test         # 单元测试（vitest）
-npm run test:vscode  # VS Code 集成测试（下载 VS Code 并运行）
+npm run watch        # incremental build
+npm run test         # unit tests (vitest)
+npm run test:vscode  # VS Code integration tests (downloads VS Code and runs them)
 npm run typecheck
 ```
 

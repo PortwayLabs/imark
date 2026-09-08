@@ -1,7 +1,7 @@
 {
   "name": "imark",
   "displayName": "iMark",
-  "description": "Typora / Obsidian style live-preview Markdown editor for VS Code, with Obsidian theme support.",
+  "description": "%imark.description%",
   "version": "0.2.0",
   "publisher": "imark",
   "license": "MIT",
@@ -33,7 +33,7 @@
     "customEditors": [
       {
         "viewType": "imark.editor",
-        "displayName": "iMark",
+        "displayName": "%imark.editor.displayName%",
         "selector": [
           {
             "filenamePattern": "*.md"
@@ -54,58 +54,58 @@
     "commands": [
       {
         "command": "imark.openInIMark",
-        "title": "Open with iMark",
+        "title": "%imark.command.openInIMark.title%",
         "category": "iMark",
         "icon": "$(book)"
       },
       {
         "command": "imark.openSource",
-        "title": "Open in Text Editor",
+        "title": "%imark.command.openSource.title%",
         "category": "iMark",
         "icon": "$(go-to-file)"
       },
       {
         "command": "imark.toggleReadingView",
-        "title": "Toggle Reading View",
+        "title": "%imark.command.toggleReadingView.title%",
         "category": "iMark",
         "icon": "$(open-preview)"
       },
       {
         "command": "imark.toggleSourceMode",
-        "title": "Toggle Live Preview / Source Mode",
+        "title": "%imark.command.toggleSourceMode.title%",
         "category": "iMark",
         "icon": "$(code)"
       },
       {
         "command": "imark.selectTheme",
-        "title": "Select Obsidian Theme…",
+        "title": "%imark.command.selectTheme.title%",
         "category": "iMark",
         "icon": "$(color-mode)"
       },
       {
         "command": "imark.reloadTheme",
-        "title": "Reload Theme",
+        "title": "%imark.command.reloadTheme.title%",
         "category": "iMark"
       },
       {
         "command": "imark.toggleReadableLineWidth",
-        "title": "Toggle Readable Line Width",
+        "title": "%imark.command.toggleReadableLineWidth.title%",
         "category": "iMark"
       },
       {
         "command": "imark.importTheme",
-        "title": "Import Obsidian Theme…",
+        "title": "%imark.command.importTheme.title%",
         "category": "iMark",
         "icon": "$(cloud-download)"
       },
       {
         "command": "imark.removeTheme",
-        "title": "Remove Imported Theme…",
+        "title": "%imark.command.removeTheme.title%",
         "category": "iMark"
       },
       {
         "command": "imark.openThemesFolder",
-        "title": "Open Themes Folder",
+        "title": "%imark.command.openThemesFolder.title%",
         "category": "iMark"
       }
     ],
@@ -177,17 +177,17 @@
       }
     ],
     "configuration": {
-      "title": "iMark",
+      "title": "%imark.config.title%",
       "properties": {
         "imark.theme.name": {
           "type": "string",
           "default": "vscode",
-          "markdownDescription": "Theme to use: `vscode` (adapt Obsidian variables to the VS Code color theme), `obsidian` (Obsidian's default look) or the id of a theme imported into iMark's library. Use **iMark: Select Theme…** to pick, or **iMark: Import Obsidian Theme…** to add themes."
+          "markdownDescription": "%imark.config.theme.name.description%"
         },
         "imark.theme.path": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Optional additional folder of Obsidian themes to offer read-only (e.g. a vault's `.obsidian/themes`). Imported themes live in iMark's own storage regardless of this setting."
+          "markdownDescription": "%imark.config.theme.path.description%"
         },
         "imark.theme.mode": {
           "type": "string",
@@ -197,7 +197,7 @@
             "dark"
           ],
           "default": "auto",
-          "description": "Light or dark variant of the Obsidian theme. `auto` follows the VS Code color theme."
+          "description": "%imark.config.theme.mode.description%"
         },
         "imark.theme.snippets": {
           "type": "array",
@@ -205,12 +205,12 @@
             "type": "string"
           },
           "default": [],
-          "markdownDescription": "CSS snippets to load after the theme: file names imported into iMark's snippet library (see **Import Obsidian Theme…**) or absolute paths."
+          "markdownDescription": "%imark.config.theme.snippets.description%"
         },
         "imark.theme.accentColor": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Accent color override as a hex color (e.g. `#7c3aed`). Sets Obsidian's `--accent-h/s/l` variables. Empty keeps the theme's accent."
+          "markdownDescription": "%imark.config.theme.accentColor.description%"
         },
         "imark.editor.defaultMode": {
           "type": "string",
@@ -220,57 +220,57 @@
             "reading"
           ],
           "enumDescriptions": [
-            "Live preview (Typora / Obsidian style)",
-            "Source mode with syntax highlighting",
-            "Reading view (rendered, read-only)"
+            "%imark.config.editor.defaultMode.enum.live%",
+            "%imark.config.editor.defaultMode.enum.source%",
+            "%imark.config.editor.defaultMode.enum.reading%"
           ],
           "default": "live",
-          "description": "Mode used when a Markdown file is opened."
+          "description": "%imark.config.editor.defaultMode.description%"
         },
         "imark.editor.readableLineWidth": {
           "type": "boolean",
           "default": true,
-          "description": "Limit the maximum line width for comfortable reading, like Obsidian's Readable line length."
+          "description": "%imark.config.editor.readableLineWidth.description%"
         },
         "imark.editor.showInlineTitle": {
           "type": "boolean",
           "default": true,
-          "description": "Show the file name as an inline title above the note."
+          "description": "%imark.config.editor.showInlineTitle.description%"
         },
         "imark.editor.showHeader": {
           "type": "boolean",
           "default": true,
-          "description": "Show the Obsidian-style view header with the mode toggle."
+          "description": "%imark.config.editor.showHeader.description%"
         },
         "imark.editor.fontSize": {
           "type": "number",
           "default": 0,
-          "description": "Editor font size in pixels. 0 uses the theme's default (`--font-text-size`)."
+          "description": "%imark.config.editor.fontSize.description%"
         },
         "imark.editor.lineNumbers": {
           "type": "boolean",
           "default": false,
-          "description": "Show line numbers in source mode."
+          "description": "%imark.config.editor.lineNumbers.description%"
         },
         "imark.editor.spellcheck": {
           "type": "boolean",
           "default": false,
-          "description": "Enable the browser spellchecker inside the editor."
+          "description": "%imark.config.editor.spellcheck.description%"
         },
         "imark.editor.autoPairMarkdown": {
           "type": "boolean",
           "default": true,
-          "description": "Auto-pair Markdown syntax (`*`, `_`, `` ` ``, `~`, `=`, `$`) in addition to brackets and quotes."
+          "description": "%imark.config.editor.autoPairMarkdown.description%"
         },
         "imark.editor.smartClickLinks": {
           "type": "boolean",
           "default": true,
-          "description": "Open links with a plain click when their markup is hidden (live preview). Ctrl/Cmd+click always opens links."
+          "description": "%imark.config.editor.smartClickLinks.description%"
         },
         "imark.attachments.folder": {
           "type": "string",
           "default": "assets",
-          "description": "Folder (relative to the note) where pasted or dropped images are stored."
+          "description": "%imark.config.attachments.folder.description%"
         },
         "imark.attachments.linkStyle": {
           "type": "string",
@@ -279,7 +279,7 @@
             "wikilink"
           ],
           "default": "markdown",
-          "description": "Link syntax used when inserting pasted images: `![](path)` or Obsidian `![[file]]`."
+          "description": "%imark.config.attachments.linkStyle.description%"
         }
       }
     }
