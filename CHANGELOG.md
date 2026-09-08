@@ -2,8 +2,7 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
-## Unreleased
-
+## 0.2.3 (2026-09-08)
 - Built-in **Monokai Syntax** theme (by lat3ncy, MIT) shipped with the extension and used as the default theme; the theme picker lists built-in themes separately.
 
 ## 0.2.2 (2026-09-08)
