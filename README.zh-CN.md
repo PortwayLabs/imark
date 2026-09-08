@@ -91,6 +91,19 @@ npm run test:vscode  # VS Code 集成测试（下载 VS Code 并运行）
 npm run typecheck
 ```
 
+## 版本发布
+
+1. 在 `CHANGELOG.md` 的 `## Unreleased` 和 `CHANGELOG.zh-CN.md` 的 `## 未发布` 小节中写好本次变更。
+2. 在干净的工作区运行发布脚本：
+
+```bash
+npm run release -- patch            # 或 minor / major / 1.2.3
+npm run release -- minor --push --github-release
+npm run release -- patch --dry-run  # 只做校验、测试和构建，不改任何文件
+```
+
+脚本会检查工作区与 tag、校验本地化文件、升级 `package.json` / `package-lock.json` 版本号、把“未发布”小节改为 `## <版本> (<日期>)`，依次执行类型检查 → 单元测试 → VS Code 集成测试 → 生产构建，打包出 `release/imark-<版本>.vsix`，然后提交 `chore(release): v<版本>` 并创建附注 tag `v<版本>`。可选参数：`--skip-tests`、`--skip-vscode-tests`、`--skip-changelog`、`--no-git`、`--allow-dirty`、`--out <目录>`、`--push`、`--publish`（需要 `VSCE_PAT`）、`--github-release`（需要 `gh` 命令行）。
+
 ## License
 
 MIT

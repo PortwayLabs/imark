@@ -12,3 +12,5 @@ vitest.config.ts
 *.vsix
 .gitignore
 dist/dev/**
+scripts/**
+release/**

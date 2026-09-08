@@ -2,6 +2,10 @@
 
 [English](CHANGELOG.md) | **简体中文**
 
+## 未发布
+
+- 发布脚本（`npm run release -- <patch|minor|major|x.y.z>`）：自动升版本号、为中英文更新日志加日期、执行类型检查 / 单元测试 / VS Code 集成测试 / 生产构建、打包 VSIX 到 `release/`、提交并打 tag；可选 `--push`、`--publish`（Marketplace）与 `--github-release`。
+
 ## 0.2.1
 
 - 表格：列宽按单词而非单个字符计算，长单元格不再挤压其他列；宽于可读行宽的表格会向两侧扩展到编辑器宽度（设置 `imark.editor.wideTables`），仍放不下时才横向滚动。

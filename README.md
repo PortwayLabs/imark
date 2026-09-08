@@ -91,6 +91,19 @@ npm run test:vscode  # VS Code integration tests (downloads VS Code and runs the
 npm run typecheck
 ```
 
+## Releasing
+
+1. Describe the changes under a `## Unreleased` section in `CHANGELOG.md` and `## 未发布` in `CHANGELOG.zh-CN.md`.
+2. Run the release script from a clean working tree:
+
+```bash
+npm run release -- patch            # or minor / major / 1.2.3
+npm run release -- minor --push --github-release
+npm run release -- patch --dry-run  # validate, test and build only
+```
+
+The script checks the tree and tag, validates the localization bundles, bumps `package.json` / `package-lock.json`, turns the Unreleased sections into `## <version> (<date>)`, runs type check → unit tests → VS Code integration tests → production build, packages `release/imark-<version>.vsix`, then commits `chore(release): v<version>` and creates the annotated tag `v<version>`. Options: `--skip-tests`, `--skip-vscode-tests`, `--skip-changelog`, `--no-git`, `--allow-dirty`, `--out <dir>`, `--push`, `--publish` (needs `VSCE_PAT`), `--github-release` (needs the `gh` CLI).
+
 ## License
 
 MIT

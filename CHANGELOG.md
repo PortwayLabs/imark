@@ -2,6 +2,10 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
+## Unreleased
+
+- Release script (`npm run release -- <patch|minor|major|x.y.z>`): bumps the version, dates the bilingual changelogs, runs type check / unit tests / VS Code integration tests / production build, packages the VSIX into `release/`, commits and tags; optional `--push`, `--publish` (Marketplace) and `--github-release`.
+
 ## 0.2.1
 
 - Tables: column widths are computed from words instead of single characters, so long cells no longer squeeze other columns; tables wider than the readable line width grow towards the editor width (setting `imark.editor.wideTables`) and scroll horizontally only as a last resort.
