@@ -2,8 +2,7 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
-## Unreleased
-
+## 0.2.8 (2026-09-08)
 - Tables are edited in place in live preview: click a cell to edit its Markdown, `Tab` / `Enter` / arrow keys move between cells, `Tab` on the last cell adds a row, hover "+" buttons add columns / rows, and the context menu inserts / deletes rows and columns, sets alignment or opens the table source. Cursor motion skips rendered tables.
 - Tables are laid out at their natural width (cells wider than `--imark-table-cell-max-width` wrap), limited to the text column and scrolled horizontally when wider (`imark.editor.wideTables` now defaults to off); long links wrap anywhere instead of widening columns.
 

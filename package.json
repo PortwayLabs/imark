@@ -2,7 +2,7 @@
   "name": "imark",
   "displayName": "iMark",
   "description": "%imark.description%",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "publisher": "PORTWAYLABS",
   "license": "MIT",
   "private": true,
