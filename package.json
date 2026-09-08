@@ -2,14 +2,14 @@
   "name": "imark",
   "displayName": "iMark",
   "description": "%imark.description%",
-  "version": "0.2.6",
-  "publisher": "imark",
+  "version": "0.2.7",
+  "publisher": "PORTWAYLABS",
   "license": "MIT",
   "private": true,
   "icon": "media/icons/imark.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/imark/imark"
+    "url": "https://github.com/sandboxgames/imark.git"
   },
   "engines": {
     "vscode": "^1.90.0"
@@ -335,5 +335,9 @@
     "mocha": "12.0.0",
     "typescript": "7.0.2",
     "vitest": "5.0.0"
+  },
+  "homepage": "https://github.com/sandboxgames/imark#readme",
+  "bugs": {
+    "url": "https://github.com/sandboxgames/imark/issues"
   }
 }
