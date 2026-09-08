@@ -2,8 +2,7 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
-## Unreleased
-
+## 0.2.10 (2026-09-08)
 - Table width model now takes precedence over theme rules (e.g. Monokai Syntax caps reading-view tables at 62rem and stretches tables to 100%), so tables show their natural width and scroll in both reading view and live preview with any theme.
 
 ## 0.2.9 (2026-09-08)
