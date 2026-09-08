@@ -15,8 +15,16 @@ export function fitTable(host: HTMLElement, wrapper: HTMLElement, table: HTMLEle
     if (!host.isConnected) return;
     const column = host.clientWidth;
     if (!column) return;
-    // The table is always laid out at its natural (max-content) width, so its box is the measurement.
+    // Natural width: force max-content for one measurement (the stylesheet uses !important).
+    const prevW = table.style.getPropertyValue('width');
+    const prevMax = table.style.getPropertyValue('max-width');
+    table.style.setProperty('width', 'max-content', 'important');
+    table.style.setProperty('max-width', 'none', 'important');
     const natural = table.getBoundingClientRect().width;
+    table.style.removeProperty('width');
+    table.style.removeProperty('max-width');
+    if (prevW) table.style.setProperty('width', prevW);
+    if (prevMax) table.style.setProperty('max-width', prevMax);
     void wrapper;
     host.classList.toggle('is-wide', natural > column + 1);
     host.style.setProperty('--imark-table-natural-width', `${Math.ceil(natural)}px`);

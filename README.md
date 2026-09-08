@@ -44,6 +44,7 @@ npm run build
 | `imark.editor.autoPairMarkdown` | Auto-pair `*` `_` `` ` `` `~` `=` `$` | `true` |
 | `imark.editor.smartClickLinks` | Open links with a plain click while their markup is hidden (`Cmd/Ctrl+click` always works) | `true` |
 | `imark.editor.wideTables` | Let tables wider than the readable line width grow (centred) towards the editor width; off = limit to the text width and scroll | `false` |
+| `imark.editor.tableLayout` | `fit`: use the available width, wrap long cells, scroll as a last resort; `natural`: never wrap, scroll when wider | `fit` |
 | `imark.attachments.folder` | Folder for pasted images, relative to the note | `assets` |
 | `imark.attachments.linkStyle` | Link syntax for inserted images: `markdown` / `wikilink` | `markdown` |
 
@@ -57,7 +58,7 @@ Built-in themes live in `media/themes/` inside the extension. Library location f
 
 ## Tables
 
-Tables stay rendered in live preview and are edited in place: click a cell to edit its Markdown (the other cells stay rendered), `Tab` / `Shift+Tab` move between cells (`Tab` on the last cell adds a row), `Enter` moves down (`Shift+Enter` inserts a `<br>`), arrow keys cross cell borders, `Esc` leaves the table, `Cmd/Ctrl+Z` undoes. Hover the table for "+" buttons that add a column / row; right-click a cell for insert / delete row and column, column alignment and "Edit table source". Tables are laid out at their natural width: a single cell wraps only when it is wider than the table container (override with `--imark-table-cell-max-width`), and a table wider than the text column scrolls horizontally inside its wrapper. Set `imark.editor.wideTables` to let wide tables grow past the readable line width instead.
+Tables stay rendered in live preview and are edited in place: click a cell to edit its Markdown (the other cells stay rendered), `Tab` / `Shift+Tab` move between cells (`Tab` on the last cell adds a row), `Enter` moves down (`Shift+Enter` inserts a `<br>`), arrow keys cross cell borders, `Esc` leaves the table, `Cmd/Ctrl+Z` undoes. Hover the table for "+" buttons that add a column / row; right-click a cell for insert / delete row and column, column alignment and "Edit table source". By default (`imark.editor.tableLayout: fit`) a table uses up to the available width: it keeps its natural width when that fits, long cells wrap by words when it does not, and the table scrolls horizontally only when even the minimal column widths (longest word / code / path) do not fit. `tableLayout: natural` never wraps and scrolls instead. Set `imark.editor.wideTables` to let wide tables grow past the readable line width.
 
 ## Mermaid
 

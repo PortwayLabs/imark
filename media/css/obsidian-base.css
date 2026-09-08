@@ -1340,10 +1340,13 @@ a.tag:hover {
   margin: var(--p-spacing) 0;
 }
 /* Tables are laid out at their natural width; only cells wider than the cap wrap. */
+/* Default ("fit"): the table takes up to the available width; long cells wrap by
+   words when the natural width does not fit; it scrolls only when even the minimal
+   (word-based) column widths do not fit. "natural": never wrap, scroll instead. */
 .markdown-rendered table {
-  width: max-content !important;
+  width: auto !important;
   min-width: 0 !important;
-  max-width: none !important;
+  max-width: 100% !important;
   table-layout: auto !important;
   border-collapse: collapse;
   font-size: var(--table-text-size);
@@ -1387,12 +1390,22 @@ a.tag:hover {
 }
 .markdown-rendered .table-cell-wrapper {
   display: block;
-  max-width: var(--imark-table-cell-max-width, calc(100cqi - 2 * var(--size-4-2) - 2px));
+  max-width: var(--imark-table-cell-max-width, none);
   min-width: 1.5em;
   min-height: 1.3em;
   outline: none;
 }
-.cm-s-obsidian .cm-table-widget .table-cell-wrapper {
+/* "natural" layout: cells never wrap unless a single cell is wider than the container. */
+.imark-table-natural .markdown-rendered table,
+.markdown-preview-view.imark-table-natural table {
+  width: max-content !important;
+  max-width: none !important;
+}
+.imark-table-natural .markdown-rendered .table-cell-wrapper,
+.markdown-preview-view.imark-table-natural .table-cell-wrapper {
+  max-width: var(--imark-table-cell-max-width, calc(100cqi - 2 * var(--size-4-2) - 2px));
+}
+.markdown-source-view.imark-table-natural .cm-table-widget .table-cell-wrapper {
   /* leave room for the add-column gutter of the table editor */
   max-width: var(--imark-table-cell-max-width, calc(100cqi - var(--size-4-6) - 2 * var(--size-4-2) - 2px));
 }

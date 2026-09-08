@@ -2,7 +2,7 @@
   "name": "imark",
   "displayName": "iMark",
   "description": "%imark.description%",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "publisher": "PORTWAYLABS",
   "license": "MIT",
   "private": true,
@@ -271,6 +271,19 @@
           "type": "boolean",
           "default": false,
           "description": "%imark.config.editor.wideTables.description%"
+        },
+        "imark.editor.tableLayout": {
+          "type": "string",
+          "enum": [
+            "fit",
+            "natural"
+          ],
+          "enumDescriptions": [
+            "%imark.config.editor.tableLayout.enum.fit%",
+            "%imark.config.editor.tableLayout.enum.natural%"
+          ],
+          "default": "fit",
+          "description": "%imark.config.editor.tableLayout.description%"
         },
         "imark.attachments.folder": {
           "type": "string",

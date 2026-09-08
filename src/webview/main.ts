@@ -375,6 +375,8 @@ class App {
     this.sourceView.classList.toggle('imark-line-numbers', cfg.lineNumbers);
     this.sourceView.classList.toggle('imark-wide-tables', cfg.wideTables);
     this.readingView.querySelector('.markdown-preview-view')?.classList.toggle('imark-wide-tables', cfg.wideTables);
+    this.sourceView.classList.toggle('imark-table-natural', cfg.tableLayout === 'natural');
+    this.readingView.querySelector('.markdown-preview-view')?.classList.toggle('imark-table-natural', cfg.tableLayout === 'natural');
     this.readingView.querySelector('.markdown-preview-view')?.classList.toggle('is-readable-line-width', cfg.readableLineWidth);
     document.body.style.setProperty('--imark-font-size-override', cfg.fontSize > 0 ? `${cfg.fontSize}px` : '');
     document.body.classList.toggle('imark-font-size-override', cfg.fontSize > 0);

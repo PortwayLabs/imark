@@ -2,6 +2,9 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
+## 0.2.11 (2026-09-08)
+- Tables wrap again: by default (`imark.editor.tableLayout: fit`) a table uses up to the available width, long cells wrap by words and horizontal scrolling is only a last resort; `natural` keeps the previous never-wrap behaviour.
+
 ## 0.2.10 (2026-09-08)
 - Table width model now takes precedence over theme rules (e.g. Monokai Syntax caps reading-view tables at 62rem and stretches tables to 100%), so tables show their natural width and scroll in both reading view and live preview with any theme.
 
