@@ -48,7 +48,7 @@ const config: EditorConfig = {
   spellcheck: false,
   autoPairMarkdown: true,
   smartClickLinks: true,
-  wideTables: params.get('wide-tables') !== '0',
+  wideTables: params.get('wide-tables') === '1',
   tabSize: 4,
   insertSpaces: true,
   attachmentLinkStyle: 'markdown',

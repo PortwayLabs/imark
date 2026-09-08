@@ -31,5 +31,5 @@
   "imark.config.editor.defaultMode.enum.live": "实时预览（Typora / Obsidian 风格）",
   "imark.config.editor.defaultMode.enum.source": "带语法高亮的源码模式",
   "imark.config.editor.defaultMode.enum.reading": "阅读视图（渲染后只读）",
-  "imark.config.editor.wideTables.description": "当表格宽度超过可读行宽时，先让表格居中向两侧扩展到编辑器宽度，仍放不下时再横向滚动。"
+  "imark.config.editor.wideTables.description": "允许比可读行宽更宽的表格居中向两侧扩展到编辑器宽度。默认关闭：表格宽度限制在正文宽度内，超出部分横向滚动。"
 }

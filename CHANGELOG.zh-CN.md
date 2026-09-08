@@ -2,6 +2,11 @@
 
 [English](CHANGELOG.md) | **简体中文**
 
+## 未发布
+
+- 表格在实时预览中可直接可视化编辑：点击单元格编辑其 Markdown，`Tab` / `Enter` / 方向键在格间移动，末格 `Tab` 自动加行，悬停 “+” 按钮添加行列，右键菜单支持插入 / 删除行列、列对齐和进入表格源码；光标移动会跳过已渲染的表格。
+- 表格按自身最长行的自然宽度布局（单元格超过 `--imark-table-cell-max-width` 才折行），宽度限制在正文列内、超出时横向滚动（`imark.editor.wideTables` 默认改为关闭）；长链接可任意断行，不再撑宽列。
+
 ## 0.2.7 (2026-09-08)
 - 插件发布者改为 `PORTWAYLABS`（扩展 ID 为 `PORTWAYLABS.imark`），仓库、主页与问题反馈链接指向 github.com/sandboxgames/imark。升级后请卸载旧的 `imark.imark` 扩展。
 

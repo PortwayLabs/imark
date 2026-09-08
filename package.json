@@ -269,7 +269,7 @@
         },
         "imark.editor.wideTables": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "%imark.config.editor.wideTables.description%"
         },
         "imark.attachments.folder": {

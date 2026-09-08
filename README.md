@@ -6,7 +6,7 @@ iMark brings the **live-preview editing experience of Typora and Obsidian** into
 
 ## Features
 
-- **Live preview editing**: headings, bold / italic / strikethrough / highlight, inline code, links, images, lists, task checkboxes, blockquotes, code blocks (syntax highlighting + language flair), tables, callouts, KaTeX math, footnotes, `%%comments%%` and YAML properties. Markdown markup is hidden while the cursor is elsewhere and revealed when the cursor enters the element, exactly like Obsidian.
+- **Live preview editing**: headings, bold / italic / strikethrough / highlight, inline code, links, images, lists, task checkboxes, blockquotes, code blocks (syntax highlighting + language flair), tables (edited in place, cell by cell), callouts, KaTeX math, footnotes, `%%comments%%` and YAML properties. Markdown markup is hidden while the cursor is elsewhere and revealed when the cursor enters the element, exactly like Obsidian.
 - **Three modes**: Live Preview / Source / Reading (`Cmd/Ctrl+E` toggles reading view, `Cmd/Ctrl+/` toggles source mode).
 - **Obsidian syntax**: `[[Wikilink|alias]]`, `![[embed.png|300]]`, `![[Note#Heading]]`, `#tags`, `==highlight==`, `> [!note]` callouts, `$...$` / `$$...$$` math.
 - **Obsidian themes**: run **iMark: Import Obsidian Theme…** and pick a theme folder, a `.obsidian` folder, a vault root or a `.css` snippet in the file dialog. Theme files are copied into iMark's own theme library (the globalStorage folder VS Code assigns to the extension, so `.obsidian/themes` is never touched). Importing a vault can also apply its appearance settings in one step (current theme, light/dark, accent color, enabled snippets). Switch with **iMark: Select Theme…**; the choice is stored in the VS Code setting `imark.theme.name` and theme files hot-reload when edited. iMark ships with the **Monokai Syntax** theme (by lat3ncy, MIT) as the default; a "Follow VS Code" adaptive theme and Obsidian's default look are built in as well.
@@ -43,7 +43,7 @@ npm run build
 | `imark.editor.spellcheck` | Enable spell checking | `false` |
 | `imark.editor.autoPairMarkdown` | Auto-pair `*` `_` `` ` `` `~` `=` `$` | `true` |
 | `imark.editor.smartClickLinks` | Open links with a plain click while their markup is hidden (`Cmd/Ctrl+click` always works) | `true` |
-| `imark.editor.wideTables` | Let tables wider than the readable line width grow (centred) towards the editor width before scrolling horizontally | `true` |
+| `imark.editor.wideTables` | Let tables wider than the readable line width grow (centred) towards the editor width; off = limit to the text width and scroll | `false` |
 | `imark.attachments.folder` | Folder for pasted images, relative to the note | `assets` |
 | `imark.attachments.linkStyle` | Link syntax for inserted images: `markdown` / `wikilink` | `markdown` |
 
@@ -54,6 +54,10 @@ npm run build
 3. Run **iMark: Select Theme…** to switch themes. Every imported theme has a remove button in the list; **iMark: Open Themes Folder** reveals the library on disk.
 
 Built-in themes live in `media/themes/` inside the extension. Library location for imported themes: `<VS Code user data>/User/globalStorage/portwaylabs.imark/themes` (on macOS `~/Library/Application Support/Code/User/globalStorage/portwaylabs.imark/themes`).
+
+## Tables
+
+Tables stay rendered in live preview and are edited in place: click a cell to edit its Markdown (the other cells stay rendered), `Tab` / `Shift+Tab` move between cells (`Tab` on the last cell adds a row), `Enter` moves down (`Shift+Enter` inserts a `<br>`), arrow keys cross cell borders, `Esc` leaves the table, `Cmd/Ctrl+Z` undoes. Hover the table for "+" buttons that add a column / row; right-click a cell for insert / delete row and column, column alignment and "Edit table source". Tables are laid out at their natural width (cells wider than `--imark-table-cell-max-width`, default `min(40em, 60vw)`, wrap) and are limited to the text column: anything wider scrolls horizontally inside the table. Set `imark.editor.wideTables` to let wide tables grow past the readable line width instead.
 
 ## Mermaid
 
