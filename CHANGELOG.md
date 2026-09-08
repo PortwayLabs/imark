@@ -2,8 +2,7 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
-## Unreleased
-
+## 0.2.5 (2026-09-08)
 - Extension icon now has a transparent background (navy square removed, anti-aliased edges preserved).
 
 ## 0.2.4 (2026-09-08)
