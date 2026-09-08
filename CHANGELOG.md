@@ -2,8 +2,7 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
-## Unreleased
-
+## 0.2.11 (2026-09-08)
 - Tables wrap again: by default (`imark.editor.tableLayout: fit`) a table uses up to the available width, long cells wrap by words and horizontal scrolling is only a last resort; `natural` keeps the previous never-wrap behaviour.
 
 ## 0.2.10 (2026-09-08)
