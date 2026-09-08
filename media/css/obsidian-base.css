@@ -423,7 +423,13 @@ body.imark-font-size-override {
   line-height: 0;
 }
 
-/* Links */
+/* Links (long URLs may break anywhere instead of widening their container) */
+.cm-s-obsidian span.cm-link,
+.cm-s-obsidian span.cm-url,
+.cm-s-obsidian span.cm-hmd-internal-link,
+.markdown-rendered a {
+  overflow-wrap: anywhere;
+}
 .cm-s-obsidian span.cm-link,
 .cm-s-obsidian span.cm-url {
   color: var(--link-external-color);
@@ -1322,39 +1328,18 @@ a.tag:hover {
 }
 .markdown-rendered .table-wrapper {
   overflow-x: auto;
-  margin: var(--p-spacing) 0;
   max-width: 100%;
+  margin: var(--p-spacing) 0;
 }
-.cm-s-obsidian .cm-table-widget .table-wrapper {
-  margin: 0;
-}
-/* Wide tables: grow past the readable line width (centred on the column) and
-   scroll horizontally only when even the editor width is not enough. */
-.markdown-source-view.mod-cm6.is-readable-line-width.imark-wide-tables .cm-table-widget.is-wide > .table-wrapper,
-.markdown-preview-view.is-readable-line-width.imark-wide-tables .is-wide > .table-wrapper {
-  --imark-wide-limit: calc(100vw - 2 * var(--size-4-8));
-  width: min(var(--imark-table-natural-width, 100%), var(--imark-wide-limit));
-  max-width: var(--imark-wide-limit);
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.markdown-source-view.mod-cm6.is-readable-line-width.imark-wide-tables .cm-table-widget.is-wide > .table-wrapper > table,
-.markdown-preview-view.is-readable-line-width.imark-wide-tables .is-wide > .table-wrapper > table {
-  width: 100%;
-  max-width: none;
-}
-.markdown-source-view.mod-cm6 .cm-table-widget.is-wide:hover {
-  box-shadow: none;
-}
+/* Tables are laid out at their natural width; only cells wider than the cap wrap. */
 .markdown-rendered table {
+  width: max-content;
+  max-width: none;
   border-collapse: collapse;
   font-size: var(--table-text-size);
   line-height: var(--table-line-height);
   color: var(--table-text-color);
   background-color: var(--table-background);
-  width: auto;
-  max-width: 100%;
 }
 .markdown-rendered th,
 .markdown-rendered td {
@@ -1362,7 +1347,6 @@ a.tag:hover {
   padding: var(--table-cell-padding);
   vertical-align: var(--table-cell-vertical-alignment);
   white-space: var(--table-white-space);
-  max-width: var(--table-column-max-width);
   text-align: start;
   /* Let the auto table layout size columns by words, not by single characters. */
   word-break: normal;
@@ -1386,9 +1370,112 @@ a.tag:hover {
 }
 .markdown-rendered .table-cell-wrapper {
   display: block;
+  max-width: var(--imark-table-cell-max-width, min(40em, 60vw));
+  min-width: 1.5em;
+  min-height: 1.3em;
+  outline: none;
 }
 .markdown-rendered .table-cell-wrapper > p {
   margin: 0;
+}
+/* Editor: the table-editor container carries the "+" buttons and the breakout. */
+.cm-s-obsidian .cm-table-widget .table-editor {
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+  padding-right: var(--size-4-6);
+  padding-bottom: var(--size-4-6);
+}
+.cm-s-obsidian .cm-table-widget .table-wrapper {
+  margin: 0;
+}
+.cm-s-obsidian .cm-table-widget .table-col-btn,
+.cm-s-obsidian .cm-table-widget .table-row-btn {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  background-color: var(--table-add-button-background);
+  border: var(--table-add-button-border-width) solid var(--table-add-button-border-color);
+  color: var(--text-muted);
+  cursor: var(--cursor);
+  opacity: 0;
+  transition: opacity var(--anim-duration-fast) var(--anim-motion-smooth);
+  z-index: 1;
+}
+.cm-s-obsidian .cm-table-widget .table-col-btn {
+  top: 0;
+  bottom: var(--size-4-6);
+  right: 0;
+  width: var(--size-4-5);
+}
+.cm-s-obsidian .cm-table-widget .table-row-btn {
+  left: 0;
+  right: var(--size-4-6);
+  bottom: 0;
+  height: var(--size-4-5);
+}
+.cm-s-obsidian .cm-table-widget .table-editor:hover .table-col-btn,
+.cm-s-obsidian .cm-table-widget .table-editor:hover .table-row-btn,
+.cm-s-obsidian .cm-table-widget.is-editing .table-col-btn,
+.cm-s-obsidian .cm-table-widget.is-editing .table-row-btn {
+  opacity: 1;
+}
+.cm-s-obsidian .cm-table-widget .table-col-btn:hover,
+.cm-s-obsidian .cm-table-widget .table-row-btn:hover {
+  background-color: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.cm-s-obsidian .cm-table-widget .table-col-btn .svg-icon,
+.cm-s-obsidian .cm-table-widget .table-row-btn .svg-icon {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+}
+.cm-s-obsidian .cm-table-widget .table-editor.is-readonly {
+  padding: 0;
+}
+/* Cell editing */
+.cm-s-obsidian .cm-table-widget .table-cell-wrapper[contenteditable='true'] {
+  cursor: text;
+  white-space: pre-wrap;
+}
+.cm-s-obsidian .cm-table-widget th.is-editing,
+.cm-s-obsidian .cm-table-widget td.is-editing {
+  box-shadow: inset 0 0 0 var(--table-selection-border-width) var(--table-selection-border-color);
+  background-color: var(--table-selection);
+  border-radius: var(--table-selection-border-radius);
+}
+.cm-s-obsidian .cm-table-widget .table-cell-wrapper[data-raw='1'] {
+  font-family: var(--font-monospace);
+  font-size: var(--code-size);
+}
+.cm-s-obsidian .cm-embed-block.cm-table-widget.is-editing:hover {
+  box-shadow: none;
+}
+.menu.imark-table-menu .menu-item.is-disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.menu.imark-table-menu .menu-item.is-disabled:hover {
+  background: none;
+}
+/* Wide tables: grow past the readable line width (centred on the column); the
+   wrapper scrolls horizontally only when even the editor width is not enough. */
+.markdown-source-view.mod-cm6.is-readable-line-width.imark-wide-tables .cm-table-widget.is-wide > .table-editor,
+.markdown-preview-view.is-readable-line-width.imark-wide-tables .is-wide > .table-wrapper {
+  --imark-wide-limit: calc(100vw - 2 * var(--size-4-8));
+  width: min(calc(var(--imark-table-natural-width, 100%) + var(--size-4-6)), var(--imark-wide-limit));
+  max-width: var(--imark-wide-limit);
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.markdown-preview-view.is-readable-line-width.imark-wide-tables .is-wide > .table-wrapper {
+  width: min(var(--imark-table-natural-width, 100%), var(--imark-wide-limit));
+}
+.markdown-source-view.mod-cm6 .cm-table-widget.is-wide:hover {
+  box-shadow: none;
 }
 .markdown-rendered hr {
   margin: 2em auto;

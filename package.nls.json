@@ -31,5 +31,5 @@
   "imark.config.editor.defaultMode.enum.live": "Live preview (Typora / Obsidian style)",
   "imark.config.editor.defaultMode.enum.source": "Source mode with syntax highlighting",
   "imark.config.editor.defaultMode.enum.reading": "Reading view (rendered, read-only)",
-  "imark.config.editor.wideTables.description": "Let tables that are wider than the readable line width grow towards the editor width (centred) before scrolling horizontally."
+  "imark.config.editor.wideTables.description": "Let tables that are wider than the readable line width grow (centred) towards the editor width. Off by default: tables are limited to the text width and scroll horizontally when they are wider."
 }

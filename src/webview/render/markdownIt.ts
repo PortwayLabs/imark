@@ -527,6 +527,10 @@ function createMarkdownIt(): MarkdownItInstance {
   };
   r.code_block = (tokens, idx) => `<pre tabindex="0"><code>${escapeHtml(tokens[idx].content)}</code><button class="copy-code-button">Copy</button></pre>\n`;
 
+  for (const tag of ['td', 'th'] as const) {
+    r[`${tag}_open`] = (tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options) + '<div class="table-cell-wrapper">';
+    r[`${tag}_close`] = () => `</div></${tag}>`;
+  }
   const defaultTableOpen = r.table_open ?? ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options));
   r.table_open = (tokens, idx, options, env, self) => `<div class="table-wrapper">` + defaultTableOpen(tokens, idx, options, env, self);
   const defaultTableClose = r.table_close ?? ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options));

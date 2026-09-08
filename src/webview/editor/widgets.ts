@@ -11,6 +11,8 @@ import { hydrateRendered } from '../render/hydrate';
 import { mermaidThemeKey, mountMermaid, renderMermaid } from '../render/mermaid';
 import { openDiagramPreview } from '../ui/diagramModal';
 import { fitTable, type TableFitHandle } from '../render/tableFit';
+import { TableController } from './tableEditor';
+import { parseTable, type TableModel } from './tableModel';
 
 export interface WidgetContext {
   resolver: LinkResolver;
@@ -405,6 +407,22 @@ export interface TableInfo {
   source: string;
 }
 
+interface TableDom extends HTMLElement {
+  imarkTable?: TableController;
+  imarkFit?: TableFitHandle;
+}
+
+/** Build the editing model from lezer's cell info (falls back to our own parser). */
+export function tableModelFromInfo(info: TableInfo): TableModel {
+  const parsed = parseTable(info.source);
+  if (parsed) return parsed;
+  return {
+    header: info.header.map((c) => c.text.trim()),
+    aligns: info.aligns.map((a) => (a === 'left' || a === 'center' || a === 'right' ? a : null)),
+    rows: info.rows.map((r) => r.map((c) => c.text.trim())),
+  };
+}
+
 export class TableWidget extends WidgetType {
   constructor(
     readonly info: TableInfo,
@@ -415,56 +433,83 @@ export class TableWidget extends WidgetType {
   eq(other: TableWidget): boolean {
     return other.info.source === this.info.source;
   }
+  /** Tables nested in quotes/lists keep their prefixes in the source and are not edited in place. */
+  get editable(): boolean {
+    return parseTable(this.info.source) !== null;
+  }
   toDOM(view: EditorView): HTMLElement {
     const ctx = view.state.facet(widgetContext);
     const rctx: RenderContext = { resolver: ctx.resolver, depth: 1 };
-    const wrap = document.createElement('div');
+    const wrap = document.createElement('div') as TableDom;
     wrap.className = 'cm-embed-block cm-table-widget markdown-rendered';
     wrap.setAttribute('contenteditable', 'false');
-    const table = document.createElement('table');
-    const thead = document.createElement('thead');
-    const tbody = document.createElement('tbody');
-    const mkCell = (tag: 'th' | 'td', cell: TableCellInfo, i: number) => {
-      const c = document.createElement(tag);
-      const align = this.info.aligns[i];
-      if (align) c.style.textAlign = align;
-      const inner = document.createElement('div');
-      inner.className = 'table-cell-wrapper';
-      inner.innerHTML = renderInline(cell.text.trim(), rctx);
-      c.appendChild(inner);
-      c.addEventListener('mousedown', (e) => {
+    if (this.editable) {
+      const controller = new TableController({
+        view,
+        host: wrap,
+        model: tableModelFromInfo(this.info),
+        source: this.info.source,
+        rctx,
+        editSource: () => placeCursorAt(view, wrap, 1),
+      });
+      wrap.imarkTable = controller;
+      wrap.appendChild(controller.root);
+      wrap.imarkFit = fitTable(wrap, controller.root, controller.table);
+    } else {
+      const editor = document.createElement('div');
+      editor.className = 'table-editor is-readonly';
+      const tw = document.createElement('div');
+      tw.className = 'table-wrapper';
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
+      const mkCell = (tag: 'th' | 'td', cell: TableCellInfo, i: number) => {
+        const c = document.createElement(tag);
+        const align = this.info.aligns[i];
+        if (align) c.style.textAlign = align;
+        const inner = document.createElement('div');
+        inner.className = 'table-cell-wrapper';
+        inner.innerHTML = renderInline(cell.text.trim(), rctx);
+        c.appendChild(inner);
+        return c;
+      };
+      const hr = document.createElement('tr');
+      this.info.header.forEach((c, i) => hr.appendChild(mkCell('th', c, i)));
+      thead.appendChild(hr);
+      for (const row of this.info.rows) {
+        const tr = document.createElement('tr');
+        row.forEach((c, i) => tr.appendChild(mkCell('td', c, i)));
+        tbody.appendChild(tr);
+      }
+      table.append(thead, tbody);
+      tw.appendChild(table);
+      editor.appendChild(tw);
+      wrap.appendChild(editor);
+      wrap.addEventListener('mousedown', (e) => {
         if (e.button !== 0 || (e.target as HTMLElement).closest('a')) return;
         e.preventDefault();
-        const base = view.posAtDOM(wrap);
-        if (base < 0) return;
-        const pos = base + (cell.from - this.from) + cell.text.length - cell.text.trimEnd().length + cell.text.trim().length;
-        view.dispatch({ selection: { anchor: Math.min(pos, view.state.doc.length) } });
-        view.focus();
+        placeCursorAt(view, wrap, 1);
       });
-      return c;
-    };
-    const hr = document.createElement('tr');
-    this.info.header.forEach((c, i) => hr.appendChild(mkCell('th', c, i)));
-    thead.appendChild(hr);
-    for (const row of this.info.rows) {
-      const tr = document.createElement('tr');
-      row.forEach((c, i) => tr.appendChild(mkCell('td', c, i)));
-      tbody.appendChild(tr);
+      wrap.imarkFit = fitTable(wrap, editor, table);
     }
-    table.append(thead, tbody);
-    const tw = document.createElement('div');
-    tw.className = 'table-wrapper';
-    tw.appendChild(table);
-    wrap.appendChild(tw);
-    wrap.appendChild(editBlockButton(view, () => wrap));
-    (wrap as HTMLElement & { imarkFit?: TableFitHandle }).imarkFit = fitTable(wrap, tw, table);
+    wrap.appendChild(editBlockButton(view, () => wrap, 1));
     return wrap;
   }
-  destroy(dom: HTMLElement): void {
-    (dom as HTMLElement & { imarkFit?: TableFitHandle }).imarkFit?.dispose();
+  updateDOM(dom: HTMLElement): boolean {
+    const d = dom as TableDom;
+    if (!d.imarkTable || !this.editable) return false;
+    d.imarkTable.update(tableModelFromInfo(this.info), this.info.source);
+    d.imarkFit?.update();
+    return true;
   }
-  ignoreEvent(e: Event): boolean {
-    return e.type !== 'mousedown';
+  destroy(dom: HTMLElement): void {
+    const d = dom as TableDom;
+    d.imarkFit?.dispose();
+    d.imarkTable?.dispose();
+  }
+  ignoreEvent(): boolean {
+    // Everything inside the table (clicks, typing, selection) is handled by the widget itself.
+    return true;
   }
 }
 

@@ -9,6 +9,7 @@ import { CalloutWidget, HtmlBlockWidget, MathWidget, MermaidWidget, TableWidget,
 import { StateEffect } from '@codemirror/state';
 import { mermaidThemeKey } from '../render/mermaid';
 import { livePreviewEnabled, selectionTouches } from './livePreview';
+import { parseTable } from './tableModel';
 import { parseCalloutHeader } from '../render/callouts';
 import { renderMarkdown } from '../render/markdownIt';
 
@@ -45,12 +46,29 @@ function tableInfo(state: EditorState, node: SyntaxNode): TableInfo | null {
   return { header: headerCells, aligns, rows, source: doc.sliceString(node.from, node.to) };
 }
 
-function build(state: EditorState): DecorationSet {
-  if (!state.facet(livePreviewEnabled)) return Decoration.none;
+/** True when a selection lies strictly inside [from, to] (boundaries do not count). */
+function selectionInside(state: EditorState, from: number, to: number): boolean {
+  for (const r of state.selection.ranges) {
+    if (r.empty ? r.head > from && r.head < to : r.from < to && r.to > from) return true;
+  }
+  return false;
+}
+
+export interface BlockWidgets {
+  decos: DecorationSet;
+  /** Ranges cursor motion should skip (in-place editable tables). */
+  atomic: DecorationSet;
+}
+
+const EMPTY: BlockWidgets = { decos: Decoration.none, atomic: Decoration.none };
+
+function build(state: EditorState): BlockWidgets {
+  if (!state.facet(livePreviewEnabled)) return EMPTY;
   const ctx = state.facet(widgetContext);
-  if (!ctx) return Decoration.none;
+  if (!ctx) return EMPTY;
   const doc = state.doc;
   const decos: Range<Decoration>[] = [];
+  const atomic: Range<Decoration>[] = [];
   const tree = syntaxTree(state);
 
   const blockRange = (node: SyntaxNode) => {
@@ -64,9 +82,15 @@ function build(state: EditorState): DecorationSet {
       switch (n.name) {
         case 'Table': {
           const { from, to } = blockRange(n.node);
-          if (selectionTouches(state, from, to)) return false;
           const info = tableInfo(state, n.node);
-          if (info) decos.push(Decoration.replace({ widget: new TableWidget(info, from), block: true }).range(from, to));
+          if (!info) return false;
+          const editable = parseTable(info.source) !== null;
+          // Editable tables stay rendered unless the cursor is strictly inside them (source editing);
+          // nested tables fall back to the old touch semantics.
+          if (editable ? selectionInside(state, from, to) : selectionTouches(state, from, to)) return false;
+          const deco = Decoration.replace({ widget: new TableWidget(info, from), block: true }).range(from, to);
+          decos.push(deco);
+          if (editable) atomic.push(deco);
           return false;
         }
         case 'Blockquote': {
@@ -141,13 +165,13 @@ function build(state: EditorState): DecorationSet {
       }
     },
   });
-  return Decoration.set(decos, true);
+  return { decos: Decoration.set(decos, true), atomic: Decoration.set(atomic, true) };
 }
 
 /** Forces block widgets to be rebuilt (e.g. after the light/dark theme changed). */
 export const rebuildBlockWidgets = StateEffect.define<null>();
 
-export const blockWidgetsField = StateField.define<DecorationSet>({
+export const blockWidgetsField = StateField.define<BlockWidgets>({
   create: build,
   update(value, tr) {
     if (
@@ -162,5 +186,5 @@ export const blockWidgetsField = StateField.define<DecorationSet>({
     }
     return value;
   },
-  provide: (f) => EditorView.decorations.from(f),
+  provide: (f) => [EditorView.decorations.from(f, (v) => v.decos), EditorView.atomicRanges.of((view) => view.state.field(f).atomic)],
 });

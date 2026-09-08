@@ -6,7 +6,7 @@ iMark 把 **Typora / Obsidian 的实时预览（Live Preview）编辑体验**带
 
 ## 特性
 
-- **实时预览编辑**：标题、粗体/斜体/删除线/高亮、行内代码、链接、图片、列表、任务复选框、引用、代码块（语法高亮 + 语言角标）、表格、Callout、KaTeX 数学公式、脚注、`%%注释%%`、YAML 属性。光标离开元素时隐藏 Markdown 标记，进入时显示（与 Obsidian 一致）。
+- **实时预览编辑**：标题、粗体/斜体/删除线/高亮、行内代码、链接、图片、列表、任务复选框、引用、代码块（语法高亮 + 语言角标）、表格（逐格可视化编辑）、Callout、KaTeX 数学公式、脚注、`%%注释%%`、YAML 属性。光标离开元素时隐藏 Markdown 标记，进入时显示（与 Obsidian 一致）。
 - **三种模式**：Live Preview / 源码模式 / 阅读视图（`Cmd/Ctrl+E` 切换阅读视图，`Cmd/Ctrl+/` 切换源码模式）。
 - **Obsidian 语法**：`[[Wikilink|别名]]`、`![[嵌入.png|300]]`、`![[笔记#标题]]`、`#标签`、`==高亮==`、`> [!note]` Callout、`$...$` / `$$...$$` 公式。
 - **Obsidian 主题**：通过 **iMark: Import Obsidian Theme…** 弹窗选择主题目录 / `.obsidian` 目录 / vault 根目录 / `.css` 片段导入，主题文件复制到 iMark 自己的主题库（VS Code 为插件分配的 globalStorage 目录，不占用 `.obsidian/themes`）；导入 vault 时可一键套用其外观配置（当前主题、明暗、强调色、启用的片段）。用 **iMark: Select Theme…** 切换，选择保存在 VS Code 设置 `imark.theme.name` 中；主题文件修改后自动热更新。插件内置 **Monokai Syntax** 主题（作者 lat3ncy，MIT 许可）作为默认主题，另外提供“跟随 VS Code 配色”自适应主题与 Obsidian 默认外观。
@@ -43,7 +43,7 @@ npm run build
 | `imark.editor.spellcheck` | 启用拼写检查 | `false` |
 | `imark.editor.autoPairMarkdown` | 自动配对 `*` `_` `` ` `` `~` `=` `$` | `true` |
 | `imark.editor.smartClickLinks` | 标记隐藏时单击即可打开链接（`Cmd/Ctrl+点击` 始终可用） | `true` |
-| `imark.editor.wideTables` | 表格宽于可读行宽时先居中向两侧扩展到编辑器宽度，仍放不下再横向滚动 | `true` |
+| `imark.editor.wideTables` | 允许宽表格居中扩展到编辑器宽度；关闭时限制在正文宽度内并横向滚动 | `false` |
 | `imark.attachments.folder` | 粘贴图片的保存目录（相对于笔记） | `assets` |
 | `imark.attachments.linkStyle` | 插入图片链接的语法：`markdown` / `wikilink` | `markdown` |
 
@@ -54,6 +54,10 @@ npm run build
 3. 运行 **iMark: Select Theme…** 切换主题；列表中每个已导入主题右侧有删除按钮，也可通过 **iMark: Open Themes Folder** 打开主题库目录。
 
 内置主题位于插件目录的 `media/themes/`。导入主题的主题库位置：`<VS Code 用户数据目录>/User/globalStorage/portwaylabs.imark/themes`（macOS 为 `~/Library/Application Support/Code/User/globalStorage/portwaylabs.imark/themes`）。
+
+## 表格
+
+表格在实时预览中始终保持渲染并可直接编辑：点击单元格编辑该格的 Markdown（其他格保持渲染），`Tab` / `Shift+Tab` 在格间移动（末格 `Tab` 自动新增一行），`Enter` 下移（`Shift+Enter` 插入 `<br>`），方向键可跨越格边界，`Esc` 离开表格，`Cmd/Ctrl+Z` 撤销。悬停表格时右侧 / 下方出现 “+” 按钮用于添加列 / 行；右键单元格可插入 / 删除行列、设置列对齐、进入“编辑表格源码”。表格按自身最长行的自然宽度布局（单元格超过 `--imark-table-cell-max-width`，默认 `min(40em, 60vw)` 时才折行），宽度限制在正文列内，超出部分在表格内横向滚动。如需让宽表格突破可读行宽，可开启 `imark.editor.wideTables`。
 
 ## Mermaid
 
