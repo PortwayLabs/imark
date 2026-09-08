@@ -31,5 +31,8 @@
   "imark.config.editor.defaultMode.enum.live": "Live preview (Typora / Obsidian style)",
   "imark.config.editor.defaultMode.enum.source": "Source mode with syntax highlighting",
   "imark.config.editor.defaultMode.enum.reading": "Reading view (rendered, read-only)",
-  "imark.config.editor.wideTables.description": "Let tables that are wider than the readable line width grow (centred) towards the editor width. Off by default: tables are limited to the text width and scroll horizontally when they are wider."
+  "imark.config.editor.wideTables.description": "Let tables that are wider than the readable line width grow (centred) towards the editor width. Off by default: tables are limited to the text width and scroll horizontally when they are wider.",
+  "imark.config.editor.tableLayout.description": "How tables use horizontal space. `fit` (default): up to the available width, long cells wrap by words, horizontal scrolling only when the minimal column widths do not fit. `natural`: never wrap, show the table at its natural width and scroll when it is wider.",
+  "imark.config.editor.tableLayout.enum.fit": "Fit the available width, wrap long cells, scroll as a last resort",
+  "imark.config.editor.tableLayout.enum.natural": "Natural width without wrapping; scroll horizontally when wider"
 }

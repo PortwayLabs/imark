@@ -5,6 +5,7 @@ export type EditorMode = 'live' | 'source' | 'reading';
 export type ThemeMode = 'auto' | 'light' | 'dark';
 export type Platform = 'mac' | 'win' | 'linux';
 export type LinkStyle = 'markdown' | 'wikilink';
+export type TableLayout = 'fit' | 'natural';
 
 /** A text change relative to the document the sender currently holds. */
 export interface TextChange {
@@ -24,6 +25,7 @@ export interface EditorConfig {
   autoPairMarkdown: boolean;
   smartClickLinks: boolean;
   wideTables: boolean;
+  tableLayout: TableLayout;
   tabSize: number;
   insertSpaces: boolean;
   attachmentLinkStyle: LinkStyle;

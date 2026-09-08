@@ -44,6 +44,7 @@ npm run build
 | `imark.editor.autoPairMarkdown` | 自动配对 `*` `_` `` ` `` `~` `=` `$` | `true` |
 | `imark.editor.smartClickLinks` | 标记隐藏时单击即可打开链接（`Cmd/Ctrl+点击` 始终可用） | `true` |
 | `imark.editor.wideTables` | 允许宽表格居中扩展到编辑器宽度；关闭时限制在正文宽度内并横向滚动 | `false` |
+| `imark.editor.tableLayout` | `fit`：占满可用宽度、长单元格折行、实在放不下才滚动；`natural`：不折行、超出即滚动 | `fit` |
 | `imark.attachments.folder` | 粘贴图片的保存目录（相对于笔记） | `assets` |
 | `imark.attachments.linkStyle` | 插入图片链接的语法：`markdown` / `wikilink` | `markdown` |
 
@@ -57,7 +58,7 @@ npm run build
 
 ## 表格
 
-表格在实时预览中始终保持渲染并可直接编辑：点击单元格编辑该格的 Markdown（其他格保持渲染），`Tab` / `Shift+Tab` 在格间移动（末格 `Tab` 自动新增一行），`Enter` 下移（`Shift+Enter` 插入 `<br>`），方向键可跨越格边界，`Esc` 离开表格，`Cmd/Ctrl+Z` 撤销。悬停表格时右侧 / 下方出现 “+” 按钮用于添加列 / 行；右键单元格可插入 / 删除行列、设置列对齐、进入“编辑表格源码”。表格按自身最长行的自然宽度布局：单元格只有超过表格容器宽度时才折行（可用 `--imark-table-cell-max-width` 覆盖），整表宽于正文列时在表格内横向滚动。如需让宽表格突破可读行宽，可开启 `imark.editor.wideTables`。
+表格在实时预览中始终保持渲染并可直接编辑：点击单元格编辑该格的 Markdown（其他格保持渲染），`Tab` / `Shift+Tab` 在格间移动（末格 `Tab` 自动新增一行），`Enter` 下移（`Shift+Enter` 插入 `<br>`），方向键可跨越格边界，`Esc` 离开表格，`Cmd/Ctrl+Z` 撤销。悬停表格时右侧 / 下方出现 “+” 按钮用于添加列 / 行；右键单元格可插入 / 删除行列、设置列对齐、进入“编辑表格源码”。默认（`imark.editor.tableLayout: fit`）表格最多占满可用宽度：放得下就按自然宽度显示，放不下时长单元格按词折行，只有列宽压到最小（最长单词 / 代码 / 路径）仍放不下时才横向滚动；`tableLayout: natural` 则从不折行、超出即滚动。如需让宽表格突破可读行宽，可开启 `imark.editor.wideTables`。
 
 ## Mermaid
 

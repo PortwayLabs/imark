@@ -280,6 +280,7 @@ export class IMarkEditorProvider implements vscode.CustomTextEditorProvider {
       autoPairMarkdown: cfg.get<boolean>('autoPairMarkdown', true),
       smartClickLinks: cfg.get<boolean>('smartClickLinks', true),
       wideTables: cfg.get<boolean>('wideTables', false),
+      tableLayout: cfg.get<'fit' | 'natural'>('tableLayout', 'fit'),
       tabSize: editor.get<number>('tabSize', 4),
       insertSpaces: editor.get<boolean>('insertSpaces', true),
       attachmentLinkStyle: attachments.get<'markdown' | 'wikilink'>('linkStyle', 'markdown'),

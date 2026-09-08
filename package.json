@@ -272,6 +272,19 @@
           "default": false,
           "description": "%imark.config.editor.wideTables.description%"
         },
+        "imark.editor.tableLayout": {
+          "type": "string",
+          "enum": [
+            "fit",
+            "natural"
+          ],
+          "enumDescriptions": [
+            "%imark.config.editor.tableLayout.enum.fit%",
+            "%imark.config.editor.tableLayout.enum.natural%"
+          ],
+          "default": "fit",
+          "description": "%imark.config.editor.tableLayout.description%"
+        },
         "imark.attachments.folder": {
           "type": "string",
           "default": "assets",
