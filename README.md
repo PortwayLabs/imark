@@ -57,7 +57,7 @@ Built-in themes live in `media/themes/` inside the extension. Library location f
 
 ## Tables
 
-Tables stay rendered in live preview and are edited in place: click a cell to edit its Markdown (the other cells stay rendered), `Tab` / `Shift+Tab` move between cells (`Tab` on the last cell adds a row), `Enter` moves down (`Shift+Enter` inserts a `<br>`), arrow keys cross cell borders, `Esc` leaves the table, `Cmd/Ctrl+Z` undoes. Hover the table for "+" buttons that add a column / row; right-click a cell for insert / delete row and column, column alignment and "Edit table source". Tables are laid out at their natural width (cells wider than `--imark-table-cell-max-width`, default `min(40em, 60vw)`, wrap) and are limited to the text column: anything wider scrolls horizontally inside the table. Set `imark.editor.wideTables` to let wide tables grow past the readable line width instead.
+Tables stay rendered in live preview and are edited in place: click a cell to edit its Markdown (the other cells stay rendered), `Tab` / `Shift+Tab` move between cells (`Tab` on the last cell adds a row), `Enter` moves down (`Shift+Enter` inserts a `<br>`), arrow keys cross cell borders, `Esc` leaves the table, `Cmd/Ctrl+Z` undoes. Hover the table for "+" buttons that add a column / row; right-click a cell for insert / delete row and column, column alignment and "Edit table source". Tables are laid out at their natural width: a single cell wraps only when it is wider than the table container (override with `--imark-table-cell-max-width`), and a table wider than the text column scrolls horizontally inside its wrapper. Set `imark.editor.wideTables` to let wide tables grow past the readable line width instead.
 
 ## Mermaid
 
