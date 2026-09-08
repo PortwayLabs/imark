@@ -43,6 +43,7 @@ npm run build
 | `imark.editor.spellcheck` | Enable spell checking | `false` |
 | `imark.editor.autoPairMarkdown` | Auto-pair `*` `_` `` ` `` `~` `=` `$` | `true` |
 | `imark.editor.smartClickLinks` | Open links with a plain click while their markup is hidden (`Cmd/Ctrl+click` always works) | `true` |
+| `imark.editor.wideTables` | Let tables wider than the readable line width grow (centred) towards the editor width before scrolling horizontally | `true` |
 | `imark.attachments.folder` | Folder for pasted images, relative to the note | `assets` |
 | `imark.attachments.linkStyle` | Link syntax for inserted images: `markdown` / `wikilink` | `markdown` |
 

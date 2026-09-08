@@ -192,3 +192,15 @@ xychart-beta
 ```mermaid
 this is not valid mermaid
 ```
+
+## 宽表格
+
+| 模块 | 职责 | 关键文件 | 说明 |
+| --- | --- | --- | --- |
+| Extension host | 注册 CustomTextEditorProvider，维护 shadow 文档并把 Webview 的增量修改应用到 TextDocument，同时把外部修改以最小 diff 回推 | `src/extension/editorProvider.ts` | 使用 `normalizeEol(document.getText()) === shadow` 判断是否为自身修改 |
+| Webview | 运行 CodeMirror 6，生成与 Obsidian 兼容的 DOM 结构，负责 Live Preview 装饰、块级 widget（表格、Callout、公式、Mermaid）与阅读视图渲染 | `src/webview/main.ts`, `src/webview/editor/*.ts` | https://codemirror.net/docs/ref/#view.EditorView |
+| Theme library | 导入 Obsidian 主题、片段与外观配置到 globalStorage | `src/extension/themeManager.ts` | 选择保存在 `imark.theme.name` |
+
+| 短 | 表 |
+| --- | --- |
+| a | b |

@@ -23,6 +23,7 @@ export interface EditorConfig {
   spellcheck: boolean;
   autoPairMarkdown: boolean;
   smartClickLinks: boolean;
+  wideTables: boolean;
   tabSize: number;
   insertSpaces: boolean;
   attachmentLinkStyle: LinkStyle;

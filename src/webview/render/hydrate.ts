@@ -8,6 +8,7 @@ import { renderMarkdown, type RenderContext } from './markdownIt';
 import { extractBlock, extractHeadingSection } from '../editor/widgets';
 import { mountMermaid, renderMermaid } from './mermaid';
 import { openDiagramPreview } from '../ui/diagramModal';
+import { fitTable } from './tableFit';
 
 const langCache = new Map<string, Promise<LanguageDescription | null>>();
 
@@ -77,6 +78,14 @@ export function hydrateRendered(container: HTMLElement, ctx: RenderContext, read
         if (r.svg) openDiagramPreview(r.svg, 'Mermaid diagram');
       });
     });
+  });
+  // Tables: break out of the readable line width when they are too wide for it.
+  container.querySelectorAll<HTMLElement>('.table-wrapper').forEach((wrapper) => {
+    if (wrapper.dataset.fit) return;
+    wrapper.dataset.fit = '1';
+    const table = wrapper.querySelector<HTMLElement>('table');
+    const host = wrapper.parentElement;
+    if (table && host) fitTable(host, wrapper, table);
   });
   // Code blocks
   container.querySelectorAll<HTMLElement>('pre > code[data-lang]').forEach((code) => {

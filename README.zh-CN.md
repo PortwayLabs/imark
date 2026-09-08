@@ -43,6 +43,7 @@ npm run build
 | `imark.editor.spellcheck` | 启用拼写检查 | `false` |
 | `imark.editor.autoPairMarkdown` | 自动配对 `*` `_` `` ` `` `~` `=` `$` | `true` |
 | `imark.editor.smartClickLinks` | 标记隐藏时单击即可打开链接（`Cmd/Ctrl+点击` 始终可用） | `true` |
+| `imark.editor.wideTables` | 表格宽于可读行宽时先居中向两侧扩展到编辑器宽度，仍放不下再横向滚动 | `true` |
 | `imark.attachments.folder` | 粘贴图片的保存目录（相对于笔记） | `assets` |
 | `imark.attachments.linkStyle` | 插入图片链接的语法：`markdown` / `wikilink` | `markdown` |
 

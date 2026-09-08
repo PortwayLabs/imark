@@ -219,8 +219,8 @@ body.imark-font-size-override {
   min-height: auto;
   caret-color: var(--caret-color);
   white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 .markdown-source-view.mod-cm6 .cm-gutters {
   display: none;
@@ -1095,6 +1095,7 @@ hr,
   font-size: var(--font-text-size);
   line-height: var(--line-height-normal);
   color: var(--text-normal);
+  word-break: normal;
   overflow-wrap: break-word;
 }
 .markdown-rendered p {
@@ -1322,6 +1323,29 @@ a.tag:hover {
 .markdown-rendered .table-wrapper {
   overflow-x: auto;
   margin: var(--p-spacing) 0;
+  max-width: 100%;
+}
+.cm-s-obsidian .cm-table-widget .table-wrapper {
+  margin: 0;
+}
+/* Wide tables: grow past the readable line width (centred on the column) and
+   scroll horizontally only when even the editor width is not enough. */
+.markdown-source-view.mod-cm6.is-readable-line-width.imark-wide-tables .cm-table-widget.is-wide > .table-wrapper,
+.markdown-preview-view.is-readable-line-width.imark-wide-tables .is-wide > .table-wrapper {
+  --imark-wide-limit: calc(100vw - 2 * var(--size-4-8));
+  width: min(var(--imark-table-natural-width, 100%), var(--imark-wide-limit));
+  max-width: var(--imark-wide-limit);
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.markdown-source-view.mod-cm6.is-readable-line-width.imark-wide-tables .cm-table-widget.is-wide > .table-wrapper > table,
+.markdown-preview-view.is-readable-line-width.imark-wide-tables .is-wide > .table-wrapper > table {
+  width: 100%;
+  max-width: none;
+}
+.markdown-source-view.mod-cm6 .cm-table-widget.is-wide:hover {
+  box-shadow: none;
 }
 .markdown-rendered table {
   border-collapse: collapse;
@@ -1340,6 +1364,10 @@ a.tag:hover {
   white-space: var(--table-white-space);
   max-width: var(--table-column-max-width);
   text-align: start;
+  /* Let the auto table layout size columns by words, not by single characters. */
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: manual;
 }
 .markdown-rendered th {
   font-family: var(--table-header-font);

@@ -2,6 +2,10 @@
 
 [English](CHANGELOG.md) | **简体中文**
 
+## 0.2.1
+
+- 表格：列宽按单词而非单个字符计算，长单元格不再挤压其他列；宽于可读行宽的表格会向两侧扩展到编辑器宽度（设置 `imark.editor.wideTables`），仍放不下时才横向滚动。
+
 ## 0.2.0
 
 - 主题库：通过文件弹窗把 Obsidian 主题、CSS 片段和 vault 外观配置导入到 iMark 自己的 globalStorage 目录；可在命令面板中选择、删除主题和打开主题库目录。不再隐式读取 `.obsidian/themes`，主题选择保存在 VS Code 设置中。

@@ -30,5 +30,6 @@
   "imark.config.attachments.linkStyle.description": "插入粘贴图片时使用的链接语法：`![](path)` 或 Obsidian 的 `![[file]]`。",
   "imark.config.editor.defaultMode.enum.live": "实时预览（Typora / Obsidian 风格）",
   "imark.config.editor.defaultMode.enum.source": "带语法高亮的源码模式",
-  "imark.config.editor.defaultMode.enum.reading": "阅读视图（渲染后只读）"
+  "imark.config.editor.defaultMode.enum.reading": "阅读视图（渲染后只读）",
+  "imark.config.editor.wideTables.description": "当表格宽度超过可读行宽时，先让表格居中向两侧扩展到编辑器宽度，仍放不下时再横向滚动。"
 }

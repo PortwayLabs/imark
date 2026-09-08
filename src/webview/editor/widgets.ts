@@ -10,6 +10,7 @@ import { svgIconElement } from '../render/icons';
 import { hydrateRendered } from '../render/hydrate';
 import { mermaidThemeKey, mountMermaid, renderMermaid } from '../render/mermaid';
 import { openDiagramPreview } from '../ui/diagramModal';
+import { fitTable, type TableFitHandle } from '../render/tableFit';
 
 export interface WidgetContext {
   resolver: LinkResolver;
@@ -456,7 +457,11 @@ export class TableWidget extends WidgetType {
     tw.appendChild(table);
     wrap.appendChild(tw);
     wrap.appendChild(editBlockButton(view, () => wrap));
+    (wrap as HTMLElement & { imarkFit?: TableFitHandle }).imarkFit = fitTable(wrap, tw, table);
     return wrap;
+  }
+  destroy(dom: HTMLElement): void {
+    (dom as HTMLElement & { imarkFit?: TableFitHandle }).imarkFit?.dispose();
   }
   ignoreEvent(e: Event): boolean {
     return e.type !== 'mousedown';

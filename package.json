@@ -2,7 +2,7 @@
   "name": "imark",
   "displayName": "iMark",
   "description": "%imark.description%",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "imark",
   "license": "MIT",
   "private": true,
@@ -266,6 +266,11 @@
           "type": "boolean",
           "default": true,
           "description": "%imark.config.editor.smartClickLinks.description%"
+        },
+        "imark.editor.wideTables": {
+          "type": "boolean",
+          "default": true,
+          "description": "%imark.config.editor.wideTables.description%"
         },
         "imark.attachments.folder": {
           "type": "string",

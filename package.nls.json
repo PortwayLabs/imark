@@ -30,5 +30,6 @@
   "imark.config.attachments.linkStyle.description": "Link syntax used when inserting pasted images: `![](path)` or Obsidian `![[file]]`.",
   "imark.config.editor.defaultMode.enum.live": "Live preview (Typora / Obsidian style)",
   "imark.config.editor.defaultMode.enum.source": "Source mode with syntax highlighting",
-  "imark.config.editor.defaultMode.enum.reading": "Reading view (rendered, read-only)"
+  "imark.config.editor.defaultMode.enum.reading": "Reading view (rendered, read-only)",
+  "imark.config.editor.wideTables.description": "Let tables that are wider than the readable line width grow towards the editor width (centred) before scrolling horizontally."
 }
