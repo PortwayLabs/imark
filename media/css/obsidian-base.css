@@ -1326,15 +1326,25 @@ a.tag:hover {
   color: var(--checklist-done-color);
   text-decoration: var(--checklist-done-decoration);
 }
+/* The width model below is iMark's (natural width + horizontal scrolling) and must
+   win over theme rules such as `table { width: 100% }` or `.el-table { max-width: 62rem }`,
+   otherwise tables get squeezed or stretched; colours and borders stay theme-controlled. */
+.markdown-rendered .el-table {
+  width: auto !important;
+  max-width: none !important;
+}
 .markdown-rendered .table-wrapper {
-  overflow-x: auto;
-  max-width: 100%;
+  overflow-x: auto !important;
+  width: auto !important;
+  max-width: 100% !important;
   margin: var(--p-spacing) 0;
 }
 /* Tables are laid out at their natural width; only cells wider than the cap wrap. */
 .markdown-rendered table {
-  width: max-content;
-  max-width: none;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  table-layout: auto !important;
   border-collapse: collapse;
   font-size: var(--table-text-size);
   line-height: var(--table-line-height);
@@ -1392,8 +1402,8 @@ a.tag:hover {
 /* Editor: the table-editor container carries the "+" buttons and the breakout. */
 .cm-s-obsidian .cm-table-widget .table-editor {
   position: relative;
-  width: max-content;
-  max-width: 100%;
+  width: max-content !important;
+  max-width: 100% !important;
   padding-right: var(--size-4-6);
   padding-bottom: var(--size-4-6);
 }
