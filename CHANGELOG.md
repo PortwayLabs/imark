@@ -2,6 +2,10 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
+## Unreleased
+
+- Extension icon: the "M" is now filled with the cyan→violet gradient of the sparkle so the icon reads clearly on light and dark backgrounds.
+
 ## 0.2.5 (2026-09-08)
 - Extension icon now has a transparent background (navy square removed, anti-aliased edges preserved).
 
