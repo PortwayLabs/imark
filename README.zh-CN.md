@@ -1,4 +1,4 @@
-# iMark — Typora / Obsidian 风格的 VS Code Markdown 编辑器
+# iMark — Typora / Obsidian 风格的 VS Code 与 Sublime Text Markdown 编辑器
 
 [English](README.md) | **简体中文**
 
@@ -24,6 +24,19 @@ npm run build
 - **调试**：在 VS Code 中按 `F5`（Run iMark Extension）。
 - **打包**：`npm run package` 生成 `imark-<version>.vsix`，再执行 `code --install-extension imark-<version>.vsix`。
 - **浏览器开发环境**（不依赖 VS Code，用于调样式）：`npm run serve` 然后打开 <http://localhost:8765/>，右下角可以切换 Obsidian 主题 / 明暗 / 模式。
+
+## Sublime Text
+
+iMark 同时提供 **Sublime Text 4 插件包**（build 4050+）。Sublime Text 没有内嵌浏览器，因此插件在 plugin host 内运行一个小型本地服务（仅依赖 Python 标准库，只监听 `127.0.0.1`，并带随机令牌保护），把同一套 iMark 编辑器提供给浏览器，并通过 WebSocket 与 Sublime Text 的 buffer 双向同步。
+
+- **安装**：从 Release 下载 `iMark-<version>.sublime-package`，放入 Sublime Text 的 `Installed Packages` 目录（Preferences → Browse Packages… 的上一级），或在本仓库执行 `npm run build:sublime && npm run sublime:install`，然后重启 Sublime Text。
+- **使用**：打开 Markdown 文件，在命令面板运行 **iMark: Open in iMark**（macOS `Cmd+Alt+M`，Windows / Linux `Ctrl+Alt+M`，也可用右键、标签或侧边栏菜单）。编辑器会在浏览器中打开；两边输入都会实时同步（保留 Sublime Text 撤销历史），浏览器中 `Cmd/Ctrl+S` 在 Sublime Text 中保存，链接与 wikilink 会在 Sublime Text 中打开目标笔记并让标签页跟随跳转，粘贴的图片保存到附件目录。状态栏显示当前模式与字数。
+- **命令**：切换阅读视图 / 源码模式、切换可读行宽、复制编辑器 URL、选择主题…、导入 Obsidian 主题…（主题目录、themes 目录、整个 vault 及其外观设置，或单个 `.css` 片段）、删除主题…、重新加载主题、打开主题目录、停止服务。
+- **设置**（Preferences → Package Settings → iMark → Settings）与 VS Code 设置一一对应，使用点号键名（`theme.name`、`theme.mode`、`theme.snippets`、`theme.accent_color`、`editor.default_mode`、`editor.readable_line_width`、`editor.table_layout`、`attachments.folder` 等），另有 `browser`（`"default"`、`"app"` 以 Chromium 系浏览器的应用窗口打开，或自定义命令如 `["/usr/bin/firefox", "--new-window", "{url}"]`）、`server.port`、`follow_links_in_browser` 与 `debug`。`theme.name: "sublime"` 选择 **Follow Sublime Text**，根据 Sublime Text 配色方案推导编辑器颜色。
+- **主题**保存在 `Packages/User/iMark/themes`（片段在 `Packages/User/iMark/snippets`），编辑后热重载；主题选择保存在 `iMark.sublime-settings`。
+- **Sublime 内预览**（只读，基于 Sublime 的 minihtml 渲染）：**iMark: Toggle Reading Sheet**（`Cmd/Ctrl+Alt+R`）在右侧分栏打开当前笔记的渲染视图，跟随当前 Markdown 文件并随输入刷新。表格降级为对齐的等宽文本，公式与 Mermaid 显示源码并附 *Open in iMark* 提示。Markdown buffer 中图片链接下方直接显示图片、Mermaid 块下方显示提示，悬停 wikilink、图片、链接或脚注引用会弹出预览。设置项：`preview.inline_images`、`preview.block_hints`、`preview.hover_popups`、`preview.max_image_width`、`preview.refresh_delay_ms`、`preview.max_size_kb`、`preview.show_title`。
+
+插件源码位于 `sublime/iMark`（Python）与 `src/sublime/bridge.ts`（替代 VS Code webview API 的浏览器桥接）。`npm run sublime:link` 把源码包软链接到 Sublime Text 的 `Packages` 目录用于开发（配合 `npm run watch` 原地重建编辑器），`npm run test:sublime` 在伪造的 Sublime API 上运行 Python 测试，`npm run sublime:dev` 可在没有 Sublime Text 的情况下运行服务。
 
 ## 配置
 
@@ -96,6 +109,8 @@ npm run test:vscode  # VS Code 集成测试（下载 VS Code 并运行）
 npm run typecheck
 ```
 
+`npm run test:sublime` 运行 Sublime Text 插件的 Python 测试（基于伪造的 Sublime API）；`npm run sublime:link` 将插件源码软链接到 Sublime Text 的 Packages 目录；`npm run sublime:dev` 在无 Sublime Text 的环境下运行服务。
+
 ## 版本发布
 
 1. 在 `CHANGELOG.md` 的 `## Unreleased` 和 `CHANGELOG.zh-CN.md` 的 `## 未发布` 小节中写好本次变更。
@@ -108,6 +123,8 @@ npm run release -- patch --dry-run  # 只做校验、测试和构建，不改任
 ```
 
 脚本会检查工作区与 tag、校验本地化文件、升级 `package.json` / `package-lock.json` 版本号、把“未发布”小节改为 `## <版本> (<日期>)`，依次执行类型检查 → 单元测试 → VS Code 集成测试 → 生产构建，打包出 `release/imark-<版本>.vsix`，然后提交 `chore(release): v<版本>` 并创建附注 tag `v<版本>`。可选参数：`--skip-tests`、`--skip-vscode-tests`、`--skip-changelog`、`--no-git`、`--allow-dirty`、`--out <目录>`、`--push`、`--publish`（需要 `VSCE_PAT`）、`--github-release`（需要 `gh` 命令行）。
+
+发布脚本同时会生成 `release/iMark-<version>.sublime-package`（Sublime Text 插件包，可用 `--skip-sublime` 跳过），并在创建 GitHub Release 时一并附上。
 
 ## License
 

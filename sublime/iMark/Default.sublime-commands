@@ -1,0 +1,31 @@
+[
+	{ "caption": "iMark: Open in iMark", "command": "imark_open" },
+	{ "caption": "iMark: Toggle Reading View", "command": "imark_toggle_reading_view" },
+	{ "caption": "iMark: Toggle Source Mode", "command": "imark_toggle_source_mode" },
+	{ "caption": "iMark: Toggle Readable Line Width", "command": "imark_toggle_readable_line_width" },
+	{ "caption": "iMark: Toggle Reading Sheet (in Sublime)", "command": "imark_toggle_reading_sheet" },
+	{ "caption": "iMark: Toggle Inline Images (in Sublime)", "command": "imark_toggle_inline_images" },
+	{ "caption": "iMark: Copy Editor URL", "command": "imark_copy_editor_url" },
+	{ "caption": "iMark: Select Theme…", "command": "imark_select_theme" },
+	{ "caption": "iMark: Import Obsidian Theme…", "command": "imark_import_theme" },
+	{ "caption": "iMark: Remove Theme…", "command": "imark_remove_theme" },
+	{ "caption": "iMark: Reload Theme", "command": "imark_reload_theme" },
+	{ "caption": "iMark: Open Themes Folder", "command": "imark_open_themes_folder" },
+	{ "caption": "iMark: Stop Server", "command": "imark_stop_server" },
+	{
+		"caption": "Preferences: iMark Settings",
+		"command": "edit_settings",
+		"args": {
+			"base_file": "${packages}/iMark/iMark.sublime-settings",
+			"default": "// Settings in here override those in \"iMark/iMark.sublime-settings\"\n{\n\t$0\n}\n"
+		}
+	},
+	{
+		"caption": "Preferences: iMark Key Bindings",
+		"command": "edit_settings",
+		"args": {
+			"base_file": "${packages}/iMark/Default ($platform).sublime-keymap",
+			"default": "[\n\t$0\n]\n"
+		}
+	}
+]

@@ -1,8 +1,8 @@
-# iMark — Typora / Obsidian style Markdown editor for VS Code
+# iMark — Typora / Obsidian style Markdown editor for VS Code and Sublime Text
 
 **English** | [简体中文](README.zh-CN.md)
 
-iMark brings the **live-preview editing experience of Typora and Obsidian** into VS Code, and it can **load Obsidian community themes unchanged**.
+iMark brings the **live-preview editing experience of Typora and Obsidian** into VS Code — and, as a [Sublime Text package](#sublime-text), into Sublime Text — and it can **load Obsidian community themes unchanged**.
 
 ## Features
 
@@ -24,6 +24,19 @@ npm run build
 - **Debug**: press `F5` in VS Code (Run iMark Extension).
 - **Package**: `npm run package` produces `imark-<version>.vsix`; install it with `code --install-extension imark-<version>.vsix`.
 - **Browser harness** (no VS Code needed, handy for styling work): `npm run serve`, then open <http://localhost:8765/>. The panel in the bottom-right corner switches Obsidian themes, light/dark and editor modes.
+
+## Sublime Text
+
+iMark also ships as a **Sublime Text 4 package** (build 4050+). Sublime Text has no embedded browser, so the package runs a small local server inside the plugin host (Python standard library only, bound to `127.0.0.1`, protected by a random per-run token) that serves the same iMark editor to your browser and mirrors the Sublime Text buffer over a WebSocket.
+
+- **Install**: download `iMark-<version>.sublime-package` from the release, drop it into Sublime Text's `Installed Packages` folder (Preferences → Browse Packages… → one level up) or, from this repo, `npm run build:sublime && npm run sublime:install`. Restart Sublime Text.
+- **Use**: open a Markdown file and run **iMark: Open in iMark** from the command palette (`Cmd+Alt+M` on macOS, `Ctrl+Alt+M` on Windows / Linux, or the context, tab and sidebar menus). The editor opens in your browser; typing on either side updates the other (with Sublime Text undo history), `Cmd/Ctrl+S` in the browser saves the file in Sublime Text, links and wikilinks open the target note in Sublime Text and navigate the tab, pasted images are stored in the attachments folder. The status bar shows the current mode and word count.
+- **Commands**: Toggle Reading View / Source Mode, Toggle Readable Line Width, Copy Editor URL, Select Theme…, Import Obsidian Theme… (theme folder, themes folder, vault with its appearance settings, or a `.css` snippet), Remove Theme…, Reload Theme, Open Themes Folder, Stop Server.
+- **Settings** (Preferences → Package Settings → iMark → Settings) mirror the VS Code settings with dotted keys (`theme.name`, `theme.mode`, `theme.snippets`, `theme.accent_color`, `editor.default_mode`, `editor.readable_line_width`, `editor.table_layout`, `attachments.folder`, …) plus `browser` (`"default"`, `"app"` for a Chromium-family app window without tabs, or a custom command such as `["/usr/bin/firefox", "--new-window", "{url}"]`), `server.port`, `follow_links_in_browser` and `debug`. `theme.name: "sublime"` selects **Follow Sublime Text**, which derives the editor colors from your Sublime Text color scheme.
+- **Themes** live in `Packages/User/iMark/themes` (snippets in `Packages/User/iMark/snippets`) and hot-reload when edited; the selection is stored in `iMark.sublime-settings`.
+- **Preview inside Sublime Text** (read-only, rendered with Sublime's minihtml): **iMark: Toggle Reading Sheet** (`Cmd/Ctrl+Alt+R`) opens a rendering of the active note in the right-hand group that follows the active Markdown file and refreshes as you type. Tables become aligned monospace text; math and Mermaid show their source with an *Open in iMark* hint. Markdown buffers show images below image links and a hint under Mermaid blocks, and hovering a wikilink, image, link or footnote reference pops up a preview. Settings: `preview.inline_images`, `preview.block_hints`, `preview.hover_popups`, `preview.max_image_width`, `preview.refresh_delay_ms`, `preview.max_size_kb`, `preview.show_title`.
+
+Package sources: `sublime/iMark` (Python) and `src/sublime/bridge.ts` (browser bridge that stands in for the VS Code webview API). `npm run sublime:link` symlinks the source package into Sublime Text's `Packages` folder for development (`npm run watch` rebuilds the editor in place), `npm run test:sublime` runs the Python tests against a fake Sublime API, and `npm run sublime:dev` runs the server without Sublime Text.
 
 ## Settings
 
@@ -85,7 +98,7 @@ Write diagrams in ```` ```mermaid ```` code blocks. The block renders as soon as
 
 ## How it works
 
-A CodeMirror 6 editor runs inside the webview and produces the same DOM structure Obsidian does (`.markdown-source-view.mod-cm6.is-live-preview .cm-s-obsidian`, `HyperMD-header-N`, `.cm-formatting`, `.callout`, `.cm-table-widget`, …). `media/css/obsidian-vars.css` provides Obsidian's default CSS variables and `obsidian-base.css` draws the editor with them, so an Obsidian theme only has to be loaded as-is. Document synchronization goes through a `CustomTextEditorProvider`: the webview sends incremental changes that the extension applies to the `TextDocument`; external changes are pushed back to the webview as a minimal diff.
+A CodeMirror 6 editor runs inside the webview (or, for Sublime Text, in a browser page served by the plugin) and produces the same DOM structure Obsidian does (`.markdown-source-view.mod-cm6.is-live-preview .cm-s-obsidian`, `HyperMD-header-N`, `.cm-formatting`, `.callout`, `.cm-table-widget`, …). `media/css/obsidian-vars.css` provides Obsidian's default CSS variables and `obsidian-base.css` draws the editor with them, so an Obsidian theme only has to be loaded as-is. Document synchronization goes through a `CustomTextEditorProvider`: the webview sends incremental changes that the extension applies to the `TextDocument`; external changes are pushed back to the webview as a minimal diff.
 
 ## Development
 
@@ -94,6 +107,9 @@ npm run watch        # incremental build
 npm run test         # unit tests (vitest)
 npm run test:vscode  # VS Code integration tests (downloads VS Code and runs them)
 npm run typecheck
+npm run test:sublime  # Sublime Text package tests (python3, fake Sublime API)
+npm run sublime:link  # symlink the Sublime Text package into Packages/ for development
+npm run sublime:dev   # run the Sublime Text server without Sublime Text (dev/sample.md)
 ```
 
 ## Releasing
@@ -107,7 +123,7 @@ npm run release -- minor --push --github-release
 npm run release -- patch --dry-run  # validate, test and build only
 ```
 
-The script checks the tree and tag, validates the localization bundles, bumps `package.json` / `package-lock.json`, turns the Unreleased sections into `## <version> (<date>)`, runs type check → unit tests → VS Code integration tests → production build, packages `release/imark-<version>.vsix`, then commits `chore(release): v<version>` and creates the annotated tag `v<version>`. Options: `--skip-tests`, `--skip-vscode-tests`, `--skip-changelog`, `--no-git`, `--allow-dirty`, `--out <dir>`, `--push`, `--publish` (needs `VSCE_PAT`), `--github-release` (needs the `gh` CLI).
+The script checks the tree and tag, validates the localization bundles, bumps `package.json` / `package-lock.json`, turns the Unreleased sections into `## <version> (<date>)`, runs type check → unit tests (vitest + the Sublime Text package tests) → VS Code integration tests → production build, packages `release/imark-<version>.vsix` and `release/iMark-<version>.sublime-package`, then commits `chore(release): v<version>` and creates the annotated tag `v<version>`. Options: `--skip-tests`, `--skip-vscode-tests`, `--skip-sublime`, `--skip-changelog`, `--no-git`, `--allow-dirty`, `--out <dir>`, `--push`, `--publish` (needs `VSCE_PAT`), `--github-release` (needs the `gh` CLI).
 
 ## License
 

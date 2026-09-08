@@ -315,7 +315,14 @@
     "release:patch": "node scripts/release.mjs patch",
     "release:minor": "node scripts/release.mjs minor",
     "release:major": "node scripts/release.mjs major",
-    "release:dry": "node scripts/release.mjs patch --dry-run"
+    "release:dry": "node scripts/release.mjs patch --dry-run",
+    "build:sublime": "node esbuild.mjs --production && node scripts/build-sublime.mjs",
+    "sublime:package": "node scripts/build-sublime.mjs",
+    "sublime:link": "node scripts/build-sublime.mjs --link",
+    "sublime:install": "node scripts/build-sublime.mjs --no-zip --install",
+    "sublime:uninstall": "node scripts/build-sublime.mjs --uninstall",
+    "sublime:dev": "python3 sublime/dev/standalone.py dev/sample.md --open",
+    "test:sublime": "python3 -m unittest discover -s sublime/tests -p \"test_*.py\""
   },
   "dependencies": {
     "@codemirror/autocomplete": "6.20.3",

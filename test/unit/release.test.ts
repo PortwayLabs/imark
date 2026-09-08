@@ -50,8 +50,9 @@ describe('missingNlsKeys / parseArgs', () => {
     expect(missingNlsKeys(pkg, { en: { 'x.one': '1', 'x.two': '2' }, zh: { 'x.one': '1' } })).toEqual({ zh: ['x.two'] });
   });
   it('parses options', () => {
-    const o = parseArgs(['minor', '--dry-run', '--push', '--out', 'dist/releases']);
-    expect(o).toMatchObject({ bump: 'minor', dryRun: true, push: true, out: 'dist/releases' });
+    const o = parseArgs(['minor', '--dry-run', '--push', '--out', 'dist/releases', '--skip-sublime']);
+    expect(o).toMatchObject({ bump: 'minor', dryRun: true, push: true, out: 'dist/releases', skipSublime: true });
+    expect(parseArgs(['patch']).skipSublime).toBe(false);
     expect(() => parseArgs(['--nope'])).toThrow(/Unknown option/);
     expect(() => parseArgs(['patch', 'minor'])).toThrow(/Unexpected/);
   });

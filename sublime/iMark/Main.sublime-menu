@@ -1,0 +1,72 @@
+[
+	{
+		"id": "tools",
+		"children": [
+			{
+				"caption": "iMark",
+				"id": "imark",
+				"children": [
+					{ "caption": "Open in iMark", "command": "imark_open" },
+					{ "caption": "Toggle Reading View", "command": "imark_toggle_reading_view" },
+					{ "caption": "Toggle Source Mode", "command": "imark_toggle_source_mode" },
+					{ "caption": "Toggle Readable Line Width", "command": "imark_toggle_readable_line_width" },
+					{ "caption": "Copy Editor URL", "command": "imark_copy_editor_url" },
+					{ "caption": "-" },
+					{ "caption": "Toggle Reading Sheet (in Sublime)", "command": "imark_toggle_reading_sheet" },
+					{ "caption": "Toggle Inline Images (in Sublime)", "command": "imark_toggle_inline_images" },
+					{ "caption": "-" },
+					{ "caption": "Select Theme…", "command": "imark_select_theme" },
+					{ "caption": "Import Obsidian Theme…", "command": "imark_import_theme" },
+					{ "caption": "Remove Theme…", "command": "imark_remove_theme" },
+					{ "caption": "Reload Theme", "command": "imark_reload_theme" },
+					{ "caption": "Open Themes Folder", "command": "imark_open_themes_folder" },
+					{ "caption": "-" },
+					{ "caption": "Stop Server", "command": "imark_stop_server" }
+				]
+			}
+		]
+	},
+	{
+		"id": "preferences",
+		"children": [
+			{
+				"caption": "Package Settings",
+				"mnemonic": "P",
+				"id": "package-settings",
+				"children": [
+					{
+						"caption": "iMark",
+						"children": [
+							{
+								"caption": "Settings",
+								"command": "edit_settings",
+								"args": {
+									"base_file": "${packages}/iMark/iMark.sublime-settings",
+									"default": "// Settings in here override those in \"iMark/iMark.sublime-settings\"\n{\n\t$0\n}\n"
+								}
+							},
+							{
+								"caption": "Key Bindings",
+								"command": "edit_settings",
+								"args": {
+									"base_file": "${packages}/iMark/Default ($platform).sublime-keymap",
+									"default": "[\n\t$0\n]\n"
+								}
+							},
+							{ "caption": "-" },
+							{ "caption": "Select Theme…", "command": "imark_select_theme" },
+							{ "caption": "Import Obsidian Theme…", "command": "imark_import_theme" },
+							{ "caption": "Open Themes Folder", "command": "imark_open_themes_folder" },
+							{ "caption": "-" },
+							{
+								"caption": "README",
+								"command": "open_file",
+								"args": { "file": "${packages}/iMark/README.md" }
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+]

@@ -1,5 +1,6 @@
 // Build script: bundles the extension host code (Node/CJS), the webview
-// (browser/ESM with code splitting for lazy language modes), the browser dev
+// (browser/ESM with code splitting for lazy language modes), the Sublime Text
+// browser bridge, the browser dev
 // harness, and (optionally) the VS Code integration tests.
 import * as esbuild from 'esbuild';
 import { cp, mkdir, rm } from 'node:fs/promises';
@@ -56,6 +57,19 @@ const harnessConfig = {
 };
 
 /** @type {import('esbuild').BuildOptions} */
+const sublimeBridgeConfig = {
+  entryPoints: ['src/sublime/bridge.ts'],
+  bundle: true,
+  platform: 'browser',
+  format: 'iife',
+  target: 'es2022',
+  outfile: 'dist/sublime/bridge.js',
+  sourcemap: !production,
+  minify: production,
+  logLevel: 'info',
+};
+
+/** @type {import('esbuild').BuildOptions} */
 const testConfig = {
   entryPoints: ['test/vscode/runTest.ts', 'test/vscode/suite/index.ts', 'test/vscode/suite/extension.test.ts'],
   bundle: true,
@@ -83,7 +97,7 @@ async function main() {
     await rm('dist', { recursive: true, force: true });
   }
   await copyStatic();
-  const configs = [extensionConfig, webviewConfig];
+  const configs = [extensionConfig, webviewConfig, sublimeBridgeConfig];
   if (dev || existsSync(path.join(root, 'dev/harness.ts'))) configs.push(harnessConfig);
   if (watch) {
     const contexts = await Promise.all(configs.map((c) => esbuild.context(c)));

@@ -1,0 +1,14 @@
+[
+	{
+		"keys": ["super+alt+m"], "command": "imark_open",
+		"context": [{ "key": "selector", "operator": "equal", "operand": "text.html.markdown" }]
+	},
+	{
+		"keys": ["super+alt+e"], "command": "imark_toggle_reading_view",
+		"context": [{ "key": "selector", "operator": "equal", "operand": "text.html.markdown" }]
+	},
+	{
+		"keys": ["super+alt+r"], "command": "imark_toggle_reading_sheet",
+		"context": [{ "key": "selector", "operator": "equal", "operand": "text.html.markdown" }]
+	}
+]

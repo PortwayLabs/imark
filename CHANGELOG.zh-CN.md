@@ -2,6 +2,12 @@
 
 [English](CHANGELOG.md) | **简体中文**
 
+## 未发布
+- **Sublime Text：编辑器内预览。** *iMark: Toggle Reading Sheet*（`Cmd/Ctrl+Alt+R`）在右侧分栏打开当前笔记的只读渲染视图，跟随当前 Markdown 文件并随输入刷新（标题、列表、任务列表、callout、代码、引用、属性、链接、wikilink、嵌入、标签、脚注、高亮；表格降级为对齐的等宽文本，公式与 Mermaid 显示源码并附 “Open in iMark” 提示）。Markdown buffer 中在图片链接 / 嵌入下方显示图片、在 Mermaid 块下方显示提示；悬停 wikilink、图片、链接或脚注引用会弹出预览（笔记摘录、图片、URL、脚注内容）。基于 Sublime 的 minihtml 渲染，是浏览器编辑器的补充而非替代。设置项：`preview.inline_images`、`preview.block_hints`、`preview.hover_popups`、`preview.max_image_width`、`preview.refresh_delay_ms`、`preview.max_size_kb`、`preview.show_title`。
+- 粘贴 / 拖入的图片保留原始文件名（`diagram.png` 仍为 `diagram.png`，重名时追加 `diagram 1.png`）；只有剪贴板式的名字（`image.png`、`image 2`、`blob`、`screenshot …`、`Pasted image …`）才改为 `Pasted image <时间戳>`。此前任何单词文件名都会被改名。VS Code 扩展与 Sublime Text 插件使用同一规则（`src/shared/attachmentName.ts`）。
+- **支持 Sublime Text**：iMark 现在同时提供 Sublime Text 4 插件包（`release/iMark-<version>.sublime-package`，`npm run build:sublime`）。Sublime Text 没有 WebView，因此插件在 plugin host 内启动一个仅依赖 Python 标准库的本地服务（只监听 `127.0.0.1`，带随机令牌），把同一套编辑器提供给浏览器，并通过 WebSocket 与 Sublime 的 buffer 双向同步：编辑双向实时同步且保留撤销历史，浏览器中 `Cmd/Ctrl+S` 在 Sublime 中保存，链接 / wikilink 会在 Sublime 中打开目标笔记并让标签页跟随跳转，粘贴的图片保存到附件目录。命令：Open in iMark（`Cmd+Alt+M` / `Ctrl+Alt+M`，右键 / 标签 / 侧边栏菜单）、切换阅读 / 源码模式、主题导入 / 选择 / 删除（主题库位于 `Packages/User/iMark`）、根据 Sublime 配色生成的 “Follow Sublime Text” 主题，以及 `browser: "app"` 以 Chromium 应用窗口打开。
+- 面向非 VS Code 宿主的浏览器桥接（`dist/sublime/bridge.js`）：自动重连、显示连接状态、拦截 `Cmd/Ctrl+S`。
+
 ## 0.2.11 (2026-09-08)
 - 表格恢复折行：默认（`imark.editor.tableLayout: fit`）表格最多占满可用宽度，长单元格按词折行，只有实在放不下才横向滚动；`natural` 保留此前不折行只滚动的行为。
 

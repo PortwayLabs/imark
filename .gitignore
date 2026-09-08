@@ -5,3 +5,7 @@ out-test/
 *.vsix
 .DS_Store
 release/
+sublime/iMark/web/
+sublime/iMark/imark-package.json
+__pycache__/
+*.pyc
