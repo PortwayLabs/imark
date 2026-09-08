@@ -2,8 +2,7 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
-## Unreleased
-
+## 0.2.7 (2026-09-08)
 - Extension publisher is now `PORTWAYLABS` (extension ID `PORTWAYLABS.imark`); repository, homepage and issue links point to github.com/sandboxgames/imark. If you installed an earlier build, uninstall the old `imark.imark` extension after upgrading.
 
 ## 0.2.6 (2026-09-08)
