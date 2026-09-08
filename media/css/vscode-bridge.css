@@ -1,0 +1,98 @@
+/*
+ * iMark — "Follow VS Code" theme: maps Obsidian variables onto the VS Code
+ * color theme variables exposed to webviews, so the editor blends in when no
+ * Obsidian theme is selected.
+ */
+body.imark-vscode-bridge {
+  --background-primary: var(--vscode-editor-background);
+  --background-primary-alt: var(--vscode-editorWidget-background, var(--vscode-sideBar-background));
+  --background-secondary: var(--vscode-sideBar-background, var(--vscode-editor-background));
+  --background-secondary-alt: var(--vscode-activityBar-background, var(--vscode-sideBar-background));
+  --background-modifier-border: var(--vscode-widget-border, var(--vscode-editorWidget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.35))));
+  --background-modifier-border-hover: var(--vscode-focusBorder);
+  --background-modifier-border-focus: var(--vscode-focusBorder);
+  --background-modifier-hover: var(--vscode-list-hoverBackground);
+  --background-modifier-active-hover: var(--vscode-list-activeSelectionBackground);
+  --background-modifier-form-field: var(--vscode-input-background);
+  --background-modifier-error: var(--vscode-inputValidation-errorBackground);
+  --background-modifier-success: var(--vscode-testing-iconPassed, #388a34);
+
+  --text-normal: var(--vscode-editor-foreground);
+  --text-muted: var(--vscode-descriptionForeground);
+  --text-faint: var(--vscode-disabledForeground, var(--vscode-descriptionForeground));
+  --text-accent: var(--vscode-textLink-foreground);
+  --text-accent-hover: var(--vscode-textLink-activeForeground);
+  --text-on-accent: var(--vscode-button-foreground);
+  --text-error: var(--vscode-errorForeground);
+  --text-warning: var(--vscode-editorWarning-foreground, var(--vscode-list-warningForeground));
+  --text-success: var(--vscode-testing-iconPassed, #388a34);
+  --text-selection: var(--vscode-editor-selectionBackground);
+  --text-highlight-bg: var(--vscode-editor-findMatchHighlightBackground);
+  --text-highlight-bg-active: var(--vscode-editor-findMatchBackground);
+  --caret-color: var(--vscode-editorCursor-foreground);
+
+  --interactive-normal: var(--vscode-button-secondaryBackground);
+  --interactive-hover: var(--vscode-button-secondaryHoverBackground);
+  --interactive-accent: var(--vscode-button-background);
+  --interactive-accent-hover: var(--vscode-button-hoverBackground);
+  --interactive-accent-hsl: var(--vscode-focusBorder);
+
+  --link-color: var(--vscode-textLink-foreground);
+  --link-color-hover: var(--vscode-textLink-activeForeground);
+  --link-external-color: var(--vscode-textLink-foreground);
+  --link-external-color-hover: var(--vscode-textLink-activeForeground);
+  --link-unresolved-color: var(--vscode-descriptionForeground);
+  --link-unresolved-decoration-color: var(--vscode-descriptionForeground);
+
+  --tag-color: var(--vscode-textLink-foreground);
+  --tag-color-hover: var(--vscode-textLink-activeForeground);
+  --tag-background: var(--vscode-badge-background);
+  --tag-background-hover: var(--vscode-list-hoverBackground);
+  --tag-border-color: transparent;
+  --tag-border-color-hover: transparent;
+
+  --code-background: var(--vscode-textCodeBlock-background);
+  --code-normal: var(--vscode-editor-foreground);
+  --code-comment: var(--vscode-descriptionForeground);
+  --code-keyword: var(--vscode-symbolIcon-keywordForeground, var(--vscode-editor-foreground));
+  --code-string: var(--vscode-symbolIcon-stringForeground, var(--vscode-editor-foreground));
+  --code-function: var(--vscode-symbolIcon-functionForeground, var(--vscode-editor-foreground));
+  --code-property: var(--vscode-symbolIcon-propertyForeground, var(--vscode-editor-foreground));
+  --code-value: var(--vscode-symbolIcon-numberForeground, var(--vscode-editor-foreground));
+  --code-operator: var(--vscode-symbolIcon-operatorForeground, var(--vscode-editor-foreground));
+  --code-tag: var(--vscode-symbolIcon-classForeground, var(--vscode-editor-foreground));
+  --code-important: var(--vscode-symbolIcon-constantForeground, var(--vscode-editor-foreground));
+  --code-punctuation: var(--vscode-descriptionForeground);
+
+  --blockquote-border-color: var(--vscode-textBlockQuote-border);
+  --blockquote-background-color: var(--vscode-textBlockQuote-background);
+  --hr-color: var(--vscode-textSeparator-foreground, var(--vscode-widget-border));
+  --table-border-color: var(--vscode-widget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.35)));
+  --table-header-background: var(--vscode-editorWidget-background, transparent);
+  --checkbox-color: var(--vscode-button-background);
+  --checkbox-color-hover: var(--vscode-button-hoverBackground);
+  --checkbox-border-color: var(--vscode-checkbox-border, var(--vscode-descriptionForeground));
+  --checkbox-marker-color: var(--vscode-button-foreground);
+  --list-marker-color: var(--vscode-descriptionForeground);
+  --indentation-guide-color: var(--vscode-editorIndentGuide-background, var(--vscode-editorIndentGuide-background1));
+  --scrollbar-thumb-bg: var(--vscode-scrollbarSlider-background);
+  --scrollbar-active-thumb-bg: var(--vscode-scrollbarSlider-activeBackground);
+  --divider-color: var(--vscode-panel-border, var(--vscode-widget-border));
+  --shadow-s: 0 2px 8px var(--vscode-widget-shadow);
+  --shadow-l: 0 4px 24px var(--vscode-widget-shadow);
+
+  --font-interface-theme: var(--vscode-font-family);
+  --font-text-theme: var(--vscode-font-family), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-monospace-theme: var(--vscode-editor-font-family), ui-monospace, Menlo, Consolas, monospace;
+
+  --callout-default: var(--imark-vscode-accent-rgb, 8, 109, 221);
+}
+body.imark-vscode-bridge .menu,
+body.imark-vscode-bridge .cm-tooltip {
+  background-color: var(--vscode-menu-background, var(--vscode-editorWidget-background));
+  color: var(--vscode-menu-foreground, var(--vscode-editor-foreground));
+}
+body.imark-vscode-bridge .menu-item:hover {
+  background-color: var(--vscode-menu-selectionBackground, var(--vscode-list-hoverBackground));
+  color: var(--vscode-menu-selectionForeground, inherit);
+}
