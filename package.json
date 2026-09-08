@@ -1,0 +1,307 @@
+{
+  "name": "imark",
+  "displayName": "iMark",
+  "description": "Typora / Obsidian style live-preview Markdown editor for VS Code, with Obsidian theme support.",
+  "version": "0.1.0",
+  "publisher": "imark",
+  "license": "MIT",
+  "private": true,
+  "icon": "media/icons/imark.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imark/imark"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "markdown",
+    "wysiwyg",
+    "typora",
+    "obsidian",
+    "live preview"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "imark.editor",
+        "displayName": "iMark",
+        "selector": [
+          {
+            "filenamePattern": "*.md"
+          },
+          {
+            "filenamePattern": "*.markdown"
+          },
+          {
+            "filenamePattern": "*.mdown"
+          },
+          {
+            "filenamePattern": "*.mkd"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "imark.openInIMark",
+        "title": "Open with iMark",
+        "category": "iMark",
+        "icon": "$(book)"
+      },
+      {
+        "command": "imark.openSource",
+        "title": "Open in Text Editor",
+        "category": "iMark",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "imark.toggleReadingView",
+        "title": "Toggle Reading View",
+        "category": "iMark",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "imark.toggleSourceMode",
+        "title": "Toggle Live Preview / Source Mode",
+        "category": "iMark",
+        "icon": "$(code)"
+      },
+      {
+        "command": "imark.selectTheme",
+        "title": "Select Obsidian Theme…",
+        "category": "iMark",
+        "icon": "$(color-mode)"
+      },
+      {
+        "command": "imark.reloadTheme",
+        "title": "Reload Theme",
+        "category": "iMark"
+      },
+      {
+        "command": "imark.toggleReadableLineWidth",
+        "title": "Toggle Readable Line Width",
+        "category": "iMark"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "imark.toggleReadingView",
+          "when": "activeCustomEditorId == imark.editor",
+          "group": "navigation@1"
+        },
+        {
+          "command": "imark.openSource",
+          "when": "activeCustomEditorId == imark.editor",
+          "group": "navigation@2"
+        },
+        {
+          "command": "imark.openInIMark",
+          "when": "resourceLangId == markdown && activeCustomEditorId != imark.editor",
+          "group": "navigation@1"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "imark.openInIMark",
+          "when": "resourceExtname =~ /\\.(md|markdown|mdown|mkd)$/",
+          "group": "1_open"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "imark.openInIMark",
+          "when": "resourceExtname =~ /\\.(md|markdown|mdown|mkd)$/",
+          "group": "navigation@50"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "imark.openInIMark",
+          "when": "resourceLangId == markdown"
+        },
+        {
+          "command": "imark.openSource",
+          "when": "activeCustomEditorId == imark.editor"
+        },
+        {
+          "command": "imark.toggleReadingView",
+          "when": "activeCustomEditorId == imark.editor"
+        },
+        {
+          "command": "imark.toggleSourceMode",
+          "when": "activeCustomEditorId == imark.editor"
+        },
+        {
+          "command": "imark.toggleReadableLineWidth"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "imark.toggleReadingView",
+        "key": "ctrl+e",
+        "mac": "cmd+e",
+        "when": "activeCustomEditorId == imark.editor && !imark.webviewFocus"
+      }
+    ],
+    "configuration": {
+      "title": "iMark",
+      "properties": {
+        "imark.theme.name": {
+          "type": "string",
+          "default": "auto",
+          "markdownDescription": "Obsidian theme to use. `auto` reads the vault's `.obsidian/appearance.json`; `vscode` adapts Obsidian variables to the current VS Code color theme; `obsidian` uses Obsidian's default look; any other value is the folder name of a theme in the themes directory. Use **iMark: Select Obsidian Theme…** to pick interactively."
+        },
+        "imark.theme.path": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Directory containing Obsidian themes (usually `<vault>/.obsidian/themes`). Leave empty to auto-detect from the workspace or the folder tree of the current file."
+        },
+        "imark.theme.mode": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "light",
+            "dark"
+          ],
+          "default": "auto",
+          "description": "Light or dark variant of the Obsidian theme. `auto` follows the VS Code color theme."
+        },
+        "imark.theme.snippets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Additional CSS snippet files to load after the theme. Absolute paths, or names of files inside the vault's `.obsidian/snippets` folder (with or without `.css`)."
+        },
+        "imark.theme.accentColor": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Accent color override as a hex color (e.g. `#7c3aed`). Sets Obsidian's `--accent-h/s/l` variables. Empty keeps the theme's accent."
+        },
+        "imark.editor.defaultMode": {
+          "type": "string",
+          "enum": [
+            "live",
+            "source",
+            "reading"
+          ],
+          "enumDescriptions": [
+            "Live preview (Typora / Obsidian style)",
+            "Source mode with syntax highlighting",
+            "Reading view (rendered, read-only)"
+          ],
+          "default": "live",
+          "description": "Mode used when a Markdown file is opened."
+        },
+        "imark.editor.readableLineWidth": {
+          "type": "boolean",
+          "default": true,
+          "description": "Limit the maximum line width for comfortable reading, like Obsidian's Readable line length."
+        },
+        "imark.editor.showInlineTitle": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the file name as an inline title above the note."
+        },
+        "imark.editor.showHeader": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the Obsidian-style view header with the mode toggle."
+        },
+        "imark.editor.fontSize": {
+          "type": "number",
+          "default": 0,
+          "description": "Editor font size in pixels. 0 uses the theme's default (`--font-text-size`)."
+        },
+        "imark.editor.lineNumbers": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show line numbers in source mode."
+        },
+        "imark.editor.spellcheck": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable the browser spellchecker inside the editor."
+        },
+        "imark.editor.autoPairMarkdown": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-pair Markdown syntax (`*`, `_`, `` ` ``, `~`, `=`, `$`) in addition to brackets and quotes."
+        },
+        "imark.editor.smartClickLinks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Open links with a plain click when their markup is hidden (live preview). Ctrl/Cmd+click always opens links."
+        },
+        "imark.attachments.folder": {
+          "type": "string",
+          "default": "assets",
+          "description": "Folder (relative to the note) where pasted or dropped images are stored."
+        },
+        "imark.attachments.linkStyle": {
+          "type": "string",
+          "enum": [
+            "markdown",
+            "wikilink"
+          ],
+          "default": "markdown",
+          "description": "Link syntax used when inserting pasted images: `![](path)` or Obsidian `![[file]]`."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "dev": "node esbuild.mjs --watch --dev",
+    "serve": "node dev/serve.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:vscode": "node esbuild.mjs --tests && node ./out-test/runTest.js",
+    "package": "npm run build && vsce package --no-dependencies"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "6.20.3",
+    "@codemirror/commands": "6.11.0",
+    "@codemirror/lang-markdown": "6.5.2",
+    "@codemirror/language": "6.12.4",
+    "@codemirror/language-data": "6.5.2",
+    "@codemirror/search": "6.7.2",
+    "@codemirror/state": "6.7.4",
+    "@codemirror/view": "6.43.11",
+    "@lezer/common": "1.5.2",
+    "@lezer/highlight": "1.2.3",
+    "@lezer/markdown": "1.7.2",
+    "dompurify": "3.4.15",
+    "katex": "0.18.7",
+    "markdown-it": "15.0.1",
+    "markdown-it-footnote": "4.0.0"
+  },
+  "devDependencies": {
+    "@types/jsdom": "30.0.0",
+    "@types/katex": "0.16.8",
+    "@types/mocha": "10.0.10",
+    "@types/node": "22.20.1",
+    "@types/vscode": "1.90.0",
+    "@vscode/test-electron": "3.1.0",
+    "@vscode/vsce": "3.9.2",
+    "esbuild": "0.28.2",
+    "jsdom": "29.1.1",
+    "mocha": "12.0.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.0"
+  }
+}

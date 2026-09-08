@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>iMark dev harness</title>
+<link rel="stylesheet" href="/dist/webview/katex/katex.min.css">
+<link rel="stylesheet" href="/media/css/obsidian-vars.css">
+<link rel="stylesheet" href="/media/css/obsidian-base.css">
+<style>
+  #imark-devbar { position: fixed; right: 12px; bottom: 12px; z-index: 9999; display: flex; gap: 6px; align-items: center;
+    background: rgba(30,30,30,.85); color: #ddd; padding: 6px 8px; border-radius: 8px; font: 12px system-ui; }
+  #imark-devbar select, #imark-devbar button { font: inherit; }
+  #imark-devbar .stats { opacity: .7; }
+</style>
+</head>
+<body class="imark-body vscode-dark">
+<script src="/dist/dev/harness.js"></script>
+<script type="module" src="/dist/webview/main.js"></script>
+</body>
+</html>
