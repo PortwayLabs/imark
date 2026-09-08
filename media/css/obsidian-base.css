@@ -1368,12 +1368,23 @@ a.tag:hover {
 .markdown-rendered tbody tr:hover td {
   background-color: var(--table-row-background-hover);
 }
+/* Each table host is a size container so cells can be capped at the visible width:
+   a column never grows past the container (which would force scrolling just to read
+   one cell), but the table as a whole may be wider than the container and scroll. */
+.markdown-rendered .el-table,
+.cm-s-obsidian .cm-table-widget {
+  container-type: inline-size;
+}
 .markdown-rendered .table-cell-wrapper {
   display: block;
-  max-width: var(--imark-table-cell-max-width, min(40em, 60vw));
+  max-width: var(--imark-table-cell-max-width, calc(100cqi - 2 * var(--size-4-2) - 2px));
   min-width: 1.5em;
   min-height: 1.3em;
   outline: none;
+}
+.cm-s-obsidian .cm-table-widget .table-cell-wrapper {
+  /* leave room for the add-column gutter of the table editor */
+  max-width: var(--imark-table-cell-max-width, calc(100cqi - var(--size-4-6) - 2 * var(--size-4-2) - 2px));
 }
 .markdown-rendered .table-cell-wrapper > p {
   margin: 0;
