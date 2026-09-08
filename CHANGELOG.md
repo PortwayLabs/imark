@@ -2,8 +2,7 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
-## Unreleased
-
+## 0.2.2 (2026-09-08)
 - Release script (`npm run release -- <patch|minor|major|x.y.z>`): bumps the version, dates the bilingual changelogs, runs type check / unit tests / VS Code integration tests / production build, packages the VSIX into `release/`, commits and tags; optional `--push`, `--publish` (Marketplace) and `--github-release`.
 
 ## 0.2.1
