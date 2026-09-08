@@ -2,8 +2,7 @@
 
 **English** | [简体中文](CHANGELOG.zh-CN.md)
 
-## Unreleased
-
+## 0.2.4 (2026-09-08)
 - New extension icon (smaller file, 128×128-friendly artwork).
 
 ## 0.2.3 (2026-09-08)
