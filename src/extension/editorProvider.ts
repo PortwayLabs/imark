@@ -403,7 +403,7 @@ export class IMarkEditorProvider implements vscode.CustomTextEditorProvider {
       `media-src ${webview.cspSource} https: http: data: blob:`,
       `style-src ${webview.cspSource} 'unsafe-inline' https: http:`,
       `font-src ${webview.cspSource} https: http: data:`,
-      `script-src 'nonce-${nonce}'`,
+      `script-src 'nonce-${nonce}' ${webview.cspSource}`,
       `connect-src ${webview.cspSource} https:`,
       `frame-src ${webview.cspSource} https:`,
     ].join('; ');

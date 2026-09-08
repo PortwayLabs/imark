@@ -352,11 +352,11 @@ class App {
     if (mode === 'dark') dark = true;
     else if (mode === 'light') dark = false;
     else {
+      // VS Code marks the webview body with vscode-dark / vscode-light / vscode-high-contrast(-light).
       const b = document.body.classList;
-      dark = b.contains('vscode-dark') || b.contains('vscode-high-contrast') ? !b.contains('vscode-high-contrast-light') : b.contains('imark-prefers-dark');
-      if (!b.contains('vscode-dark') && !b.contains('vscode-light') && !b.contains('vscode-high-contrast') && !b.contains('imark-prefers-dark') && !b.contains('imark-prefers-light')) {
-        dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      }
+      const known = ['vscode-dark', 'vscode-light', 'vscode-high-contrast', 'vscode-high-contrast-light', 'imark-prefers-dark', 'imark-prefers-light'].some((c) => b.contains(c));
+      if (!known) dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      else dark = b.contains('vscode-dark') || b.contains('imark-prefers-dark') || (b.contains('vscode-high-contrast') && !b.contains('vscode-high-contrast-light'));
     }
     document.body.classList.toggle('theme-dark', dark);
     document.body.classList.toggle('theme-light', !dark);
