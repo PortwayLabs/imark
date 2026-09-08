@@ -2,6 +2,10 @@
 
 [English](CHANGELOG.md) | **简体中文**
 
+## 未发布
+
+- 插件发布者改为 `PORTWAYLABS`（扩展 ID 为 `PORTWAYLABS.imark`），仓库、主页与问题反馈链接指向 github.com/sandboxgames/imark。升级后请卸载旧的 `imark.imark` 扩展。
+
 ## 0.2.6 (2026-09-08)
 - 插件图标：M 改为与星芒一致的青→紫渐变填充，浅色与深色背景下均清晰可见。
 

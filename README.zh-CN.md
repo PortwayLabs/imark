@@ -53,7 +53,7 @@ npm run build
 2. 在弹窗中选择：某个主题文件夹（含 `theme.css`）、整个 `themes` 目录、`.obsidian` 目录或 vault 根目录（会导入全部主题并询问是否套用 `appearance.json` 中的外观配置）、或单个 `.css` 片段。
 3. 运行 **iMark: Select Theme…** 切换主题；列表中每个已导入主题右侧有删除按钮，也可通过 **iMark: Open Themes Folder** 打开主题库目录。
 
-内置主题位于插件目录的 `media/themes/`。导入主题的主题库位置：`<VS Code 用户数据目录>/User/globalStorage/imark.imark/themes`（macOS 为 `~/Library/Application Support/Code/User/globalStorage/imark.imark/themes`）。
+内置主题位于插件目录的 `media/themes/`。导入主题的主题库位置：`<VS Code 用户数据目录>/User/globalStorage/portwaylabs.imark/themes`（macOS 为 `~/Library/Application Support/Code/User/globalStorage/portwaylabs.imark/themes`）。
 
 ## Mermaid
 

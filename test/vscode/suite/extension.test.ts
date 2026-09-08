@@ -6,7 +6,7 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 suite('iMark extension', () => {
   test('activates and opens a Markdown file in the iMark custom editor', async () => {
-    const ext = vscode.extensions.getExtension('imark.imark');
+    const ext = vscode.extensions.getExtension('PORTWAYLABS.imark');
     assert.ok(ext, 'extension should be present');
     const folder = vscode.workspace.workspaceFolders?.[0];
     assert.ok(folder, 'fixture workspace should be open');

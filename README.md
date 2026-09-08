@@ -53,7 +53,7 @@ npm run build
 2. In the dialog pick a theme folder (containing `theme.css`), a whole `themes` folder, a `.obsidian` folder or a vault root (imports every theme and offers to apply the appearance settings found in `appearance.json`), or a single `.css` snippet.
 3. Run **iMark: Select Theme…** to switch themes. Every imported theme has a remove button in the list; **iMark: Open Themes Folder** reveals the library on disk.
 
-Built-in themes live in `media/themes/` inside the extension. Library location for imported themes: `<VS Code user data>/User/globalStorage/imark.imark/themes` (on macOS `~/Library/Application Support/Code/User/globalStorage/imark.imark/themes`).
+Built-in themes live in `media/themes/` inside the extension. Library location for imported themes: `<VS Code user data>/User/globalStorage/portwaylabs.imark/themes` (on macOS `~/Library/Application Support/Code/User/globalStorage/portwaylabs.imark/themes`).
 
 ## Mermaid
 
