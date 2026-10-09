@@ -93,6 +93,18 @@
         "category": "iMark"
       },
       {
+        "command": "imark.manageThemes",
+        "title": "%imark.command.manageThemes.title%",
+        "category": "iMark",
+        "icon": "$(symbol-color)"
+      },
+      {
+        "command": "imark.browseThemes",
+        "title": "%imark.command.browseThemes.title%",
+        "category": "iMark",
+        "icon": "$(extensions)"
+      },
+      {
         "command": "imark.importTheme",
         "title": "%imark.command.importTheme.title%",
         "category": "iMark",
@@ -211,6 +223,21 @@
           "type": "string",
           "default": "",
           "markdownDescription": "%imark.config.theme.accentColor.description%"
+        },
+        "imark.theme.protection": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "guard",
+            "off"
+          ],
+          "enumDescriptions": [
+            "%imark.config.theme.protection.enum.auto%",
+            "%imark.config.theme.protection.enum.guard%",
+            "%imark.config.theme.protection.enum.off%"
+          ],
+          "default": "auto",
+          "markdownDescription": "%imark.config.theme.protection.description%"
         },
         "imark.editor.defaultMode": {
           "type": "string",

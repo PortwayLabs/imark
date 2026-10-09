@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>iMark theme manager harness</title>
+<link rel="stylesheet" href="/dev/vscode-vars.css">
+<link rel="stylesheet" href="/media/css/gallery.css">
+</head>
+<body class="vscode-dark">
+<div id="app"></div>
+<script>
+// Mocks the extension host of src/extension/themeGallery.ts with the real community list.
+(function () {
+  const params = new URLSearchParams(location.search);
+  const lang = params.get('lang') === 'zh' ? 'zh' : 'en';
+  const raw = (repo, file) => 'https://raw.githubusercontent.com/' + repo + '/HEAD/' + file.split('/').map(encodeURIComponent).join('/');
+  let catalog = [];
+  let current = 'Monokai Syntax';
+  const installed = new Map([
+    ['Monokai Syntax', { origin: 'bundled', version: '1.0.0', author: 'lat3ncy' }],
+    ['Minimal', { origin: 'library', version: '8.0.0', size: 266817 }],
+    ['Things', { origin: 'library', version: '2.2.4', size: 68646 }],
+  ]);
+  const busy = {};
+  const log = (window.__galleryLog = []);
+  function state() {
+    const themes = [
+      { name: 'Follow VS Code', author: 'iMark', modes: ['dark', 'light'], community: false, id: 'vscode', installed: true, origin: 'special', inUse: false, current: current === 'vscode', description: 'Maps Obsidian variables to the VS Code color theme.' },
+    ];
+    const byName = new Map(catalog.map((e) => [e.name.toLowerCase(), e]));
+    for (const [name, i] of installed) {
+      const e = byName.get(name.toLowerCase());
+      themes.push({ name, author: i.author || (e && e.author) || '', repo: e && e.repo, screenshot: e && e.screenshot ? raw(e.repo, e.screenshot) : undefined, modes: (e && e.modes) || ['dark'], community: !!e, id: name, installed: true, origin: i.origin, version: i.version, size: i.size, inUse: current === name, current: current === name, update: name === 'Minimal' ? '9.1.4' : undefined });
+    }
+    for (const e of catalog) if (!installed.has(e.name)) themes.push({ name: e.name, author: e.author, repo: e.repo, screenshot: e.screenshot ? raw(e.repo, e.screenshot) : undefined, modes: e.modes || ['dark', 'light'], community: true, installed: false, inUse: false, current: false });
+    return { lang, themes, catalog: { count: catalog.length, fetchedAt: Date.now(), loading: !catalog.length }, busy, checkingUpdates: false, libraryBytes: 335463, cacheBytes: 123456, libraryDir: '/Users/me/Library/Application Support/Code/User/globalStorage/portwaylabs.imark/themes' };
+  }
+  const send = () => window.postMessage({ type: 'state', state: state() }, '*');
+  window.acquireVsCodeApi = () => ({
+    getState: () => null,
+    setState: () => {},
+    postMessage: (m) => {
+      log.push(m);
+      if (m.type === 'ready') {
+        window.postMessage({ type: 'tab', tab: params.get('tab') || 'installed' }, '*');
+        send();
+        fetch('https://raw.githubusercontent.com/obsidianmd/obsidian-releases/HEAD/community-css-themes.json').then((r) => r.json()).then((j) => { catalog = j; send(); });
+      } else if (m.type === 'install') {
+        busy[m.name] = 'installing';
+        send();
+        setTimeout(() => { delete busy[m.name]; installed.set(m.name, { origin: 'library', version: '1.0.0', size: 1000 }); send(); }, 600);
+      } else if (m.type === 'use') { current = m.id; send(); }
+      else if (m.type === 'remove') { installed.delete(m.id); send(); }
+    },
+  });
+})();
+</script>
+<script src="/dist/gallery/main.js"></script>
+</body>
+</html>

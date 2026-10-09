@@ -569,7 +569,7 @@ class SyncManager:
             if window is not None:
                 window.focus_view(session.view)
             util.activate_sublime()
-        elif command == 'selectTheme':
+        elif command in ('selectTheme', 'manageThemes'):
             if window is not None:
                 window.run_command('imark_select_theme')
             util.activate_sublime()
@@ -676,6 +676,7 @@ class SyncManager:
             '<meta http-equiv="Content-Security-Policy" content="%s">\n'
             '<title>iMark</title>\n'
             '<link rel="icon" href="/web/icons/imark.png">\n'
+            '<link rel="stylesheet" href="/web/css/imark-guard.css" id="imark-guard">\n'
             '<link rel="stylesheet" href="/web/webview/katex/katex.min.css">\n'
             '<link rel="stylesheet" href="/web/css/obsidian-vars.css">\n'
             '<link rel="stylesheet" href="/web/css/obsidian-base.css">\n'

@@ -70,6 +70,19 @@ const sublimeBridgeConfig = {
 };
 
 /** @type {import('esbuild').BuildOptions} */
+const galleryConfig = {
+  entryPoints: ['src/gallery/main.ts'],
+  bundle: true,
+  platform: 'browser',
+  format: 'iife',
+  target: 'es2022',
+  outfile: 'dist/gallery/main.js',
+  sourcemap: !production,
+  minify: production,
+  logLevel: 'info',
+};
+
+/** @type {import('esbuild').BuildOptions} */
 const testConfig = {
   entryPoints: ['test/vscode/runTest.ts', 'test/vscode/suite/index.ts', 'test/vscode/suite/extension.test.ts'],
   bundle: true,
@@ -97,7 +110,7 @@ async function main() {
     await rm('dist', { recursive: true, force: true });
   }
   await copyStatic();
-  const configs = [extensionConfig, webviewConfig, sublimeBridgeConfig];
+  const configs = [extensionConfig, webviewConfig, sublimeBridgeConfig, galleryConfig];
   if (dev || existsSync(path.join(root, 'dev/harness.ts'))) configs.push(harnessConfig);
   if (watch) {
     const contexts = await Promise.all(configs.map((c) => esbuild.context(c)));

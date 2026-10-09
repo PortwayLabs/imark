@@ -20,6 +20,8 @@ import { renderMarkdown } from './render/markdownIt';
 import { hydrateRendered } from './render/hydrate';
 import { createHeader, type HeaderHandle } from './ui/header';
 import { setMermaidDark } from './render/mermaid';
+import { checkAndRepair, clearRepairs, waitForStylesheets, type HealthTargets, type ThemeProblem } from './render/themeHealth';
+import { showThemeNotice, hideThemeNotice } from './ui/themeNotice';
 
 interface SavedState {
   mode?: EditorMode;
@@ -47,6 +49,13 @@ class App {
   renderTimer: number | undefined;
   statsTimer: number | undefined;
   readFileCache = new Map<string, Promise<string | null>>();
+  /** Bumped on every theme change so that stale health checks are dropped. */
+  themeSeq = 0;
+  /** View kinds ('editor' / 'reading') already checked for the current theme. */
+  themeChecked = new Set<string>();
+  themeProblems: ThemeProblem[] = [];
+  themeRepaired = new Set<string>();
+  themeNotified = false;
 
   constructor() {
     this.buildShell();
@@ -165,6 +174,7 @@ class App {
         else if (action === 'toggleReadable') host.post({ type: 'command', command: 'toggleReadableLineWidth' });
         else if (action === 'openSource') host.post({ type: 'command', command: 'openSource' });
         else if (action === 'selectTheme') host.post({ type: 'command', command: 'selectTheme' });
+        else if (action === 'manageThemes') host.post({ type: 'command', command: 'manageThemes' });
       },
     });
     this.leafContent.insertBefore(this.header.el, this.viewContent);
@@ -269,6 +279,7 @@ class App {
       if (!initial) this.editor?.view.focus();
     }
     if (!initial || prev !== mode) host.post({ type: 'modeChanged', mode });
+    if (!initial) void nextFrames(2).then(() => this.checkThemeHealth());
   }
 
   scheduleRender() {
@@ -330,13 +341,15 @@ class App {
     this.theme = theme;
     document.querySelectorAll('link[data-imark-theme], style[data-imark-theme]').forEach((n) => n.remove());
     document.body.classList.toggle('imark-vscode-bridge', theme.kind === 'vscode');
+    document.body.classList.toggle('imark-guard-off', theme.protection === 'off');
     const head = document.head;
-    theme.cssUris.forEach((href) => {
+    const links = theme.cssUris.map((href) => {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = href;
       link.setAttribute('data-imark-theme', '1');
       head.appendChild(link);
+      return link;
     });
     if (theme.extraCss) {
       const style = document.createElement('style');
@@ -345,6 +358,74 @@ class App {
       head.appendChild(style);
     }
     this.applyThemeMode();
+    void this.startThemeCheck(links);
+  }
+
+  // ---- theme health (see render/themeHealth.ts) --------------------------------------------
+
+  async startThemeCheck(links: HTMLLinkElement[]) {
+    const seq = ++this.themeSeq;
+    clearRepairs();
+    hideThemeNotice();
+    this.themeChecked.clear();
+    this.themeProblems = [];
+    this.themeRepaired.clear();
+    this.themeNotified = false;
+    const failed = await waitForStylesheets(links);
+    if (seq !== this.themeSeq) return;
+    for (const href of failed) this.themeProblems.push({ kind: 'load', detail: `a stylesheet could not be loaded (${decodeURIComponent(href.split('/').pop()?.split('?')[0] ?? href)})` });
+    await nextFrames(2);
+    if (seq !== this.themeSeq) return;
+    this.checkThemeHealth();
+  }
+
+  healthTargets(): HealthTargets {
+    const dark = document.body.classList.contains('theme-dark');
+    if (this.mode === 'reading') {
+      const view = this.readingView.querySelector<HTMLElement>('.markdown-preview-view')!;
+      return { container: view, content: this.readingSizer, sample: this.readingSizer.querySelector<HTMLElement>('p, li, h1, h2, h3, h4, h5, h6'), dark };
+    }
+    const lines = this.sourceView.querySelectorAll<HTMLElement>('.cm-line');
+    let sample: HTMLElement | null = null;
+    for (const l of lines) {
+      if (l.textContent?.trim() && !l.querySelector('.cm-widgetBuffer, .cm-embed-block')) {
+        sample = l;
+        break;
+      }
+    }
+    return { container: this.sourceView, content: this.sourceView.querySelector<HTMLElement>('.cm-content'), sample, dark };
+  }
+
+  /** Check the visible view once per theme and view kind; repair and report problems. */
+  checkThemeHealth() {
+    const theme = this.theme;
+    if (!theme || (theme.protection ?? 'auto') !== 'auto' || !this.editor) return;
+    const kind = this.mode === 'reading' ? 'reading' : 'editor';
+    if (this.themeChecked.has(kind)) return;
+    if (!this.root.isConnected || document.visibilityState === 'hidden' || !this.root.getBoundingClientRect().width) return; // retried on the next mode switch / theme change
+    this.themeChecked.add(kind);
+    const report = checkAndRepair(() => this.healthTargets());
+    for (const k of report.repaired) this.themeRepaired.add(k);
+    const known = new Set(this.themeProblems.map((p) => p.kind));
+    let added = false;
+    for (const p of report.problems) {
+      if (known.has(p.kind)) continue;
+      known.add(p.kind);
+      this.themeProblems.push(p);
+      added = true;
+    }
+    if (!this.themeProblems.length || (!added && this.themeNotified)) return;
+    this.themeNotified = true;
+    const repaired = [...this.themeRepaired];
+    host.post({ type: 'themeIssue', theme: theme.name, problems: this.themeProblems.map((p) => p.detail), repaired, action: 'report' });
+    if (theme.quietIssues) return;
+    showThemeNotice({
+      theme: theme.name,
+      problems: this.themeProblems,
+      repaired: this.themeRepaired,
+      onSelectTheme: () => host.post({ type: 'command', command: 'selectTheme' }),
+      onIgnore: () => host.post({ type: 'themeIssue', theme: theme.name, problems: [], repaired: [], action: 'ignore' }),
+    });
   }
 
   applyThemeMode() {
@@ -405,6 +486,13 @@ class App {
     const words = (text.replace(/[぀-ヿ㐀-䶿一-鿿豈-﫿가-힯]/g, ' ').match(/[\p{L}\p{N}]+(?:['’][\p{L}]+)?/gu) ?? []).length;
     host.post({ type: 'stats', words: words + cjk, characters: text.replace(/\s/g, '').length });
   }
+}
+
+function nextFrames(n: number): Promise<void> {
+  return new Promise((resolve) => {
+    const step = (left: number) => (left <= 0 ? resolve() : requestAnimationFrame(() => step(left - 1)));
+    step(n);
+  });
 }
 
 function escapeHtml(s: string): string {

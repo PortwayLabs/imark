@@ -34,5 +34,11 @@
   "imark.config.editor.wideTables.description": "Let tables that are wider than the readable line width grow (centred) towards the editor width. Off by default: tables are limited to the text width and scroll horizontally when they are wider.",
   "imark.config.editor.tableLayout.description": "How tables use horizontal space. `fit` (default): up to the available width, long cells wrap by words, horizontal scrolling only when the minimal column widths do not fit. `natural`: never wrap, show the table at its natural width and scroll when it is wider.",
   "imark.config.editor.tableLayout.enum.fit": "Fit the available width, wrap long cells, scroll as a last resort",
-  "imark.config.editor.tableLayout.enum.natural": "Natural width without wrapping; scroll horizontally when wider"
+  "imark.config.editor.tableLayout.enum.natural": "Natural width without wrapping; scroll horizontally when wider",
+  "imark.command.manageThemes.title": "Manage Themes…",
+  "imark.command.browseThemes.title": "Browse Community Themes…",
+  "imark.config.theme.protection.description": "Protect iMark's layout from theme CSS. `auto` (default): a guard layer keeps the editor structure, tables and menus working whatever the theme does, and a check after each theme change repairs a squeezed text column, unreadable font sizes or invisible text and tells you about it. `guard`: guard layer only. `off`: load themes exactly as they are (for theme development).",
+  "imark.config.theme.protection.enum.auto": "Guard layer plus automatic check and repair",
+  "imark.config.theme.protection.enum.guard": "Guard layer only (no runtime check)",
+  "imark.config.theme.protection.enum.off": "No protection: themes can change everything"
 }

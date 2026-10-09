@@ -1,0 +1,11 @@
+/* Deliberately hostile theme used to verify iMark's layout guard and repairs. */
+body { overflow: auto !important; }
+.workspace-leaf-content { display: block !important; height: auto !important; }
+.markdown-source-view.mod-cm6 .cm-scroller { overflow: hidden !important; display: block !important; }
+.markdown-source-view.mod-cm6 .cm-sizer { max-width: 80px !important; }
+.markdown-preview-view .markdown-preview-sizer { max-width: 60px !important; }
+.markdown-source-view.mod-cm6 .cm-line { font-size: 3px !important; color: var(--background-primary) !important; }
+.markdown-rendered p { font-size: 3px !important; color: var(--background-primary) !important; }
+table { width: 100% !important; table-layout: fixed !important; }
+.table-cell-wrapper { user-select: none !important; pointer-events: none !important; }
+.menu { position: absolute !important; display: none !important; }

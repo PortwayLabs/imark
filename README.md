@@ -6,10 +6,11 @@ iMark brings the **live-preview editing experience of Typora and Obsidian** into
 
 ## Features
 
-- **Live preview editing**: headings, bold / italic / strikethrough / highlight, inline code, links, images, lists, task checkboxes, blockquotes, code blocks (syntax highlighting + language flair), tables (edited in place, cell by cell), callouts, KaTeX math, footnotes, `%%comments%%` and YAML properties. Markdown markup is hidden while the cursor is elsewhere and revealed when the cursor enters the element, exactly like Obsidian.
+- **Live preview editing**: headings, bold / italic / strikethrough / highlight, inline code, links, images, lists, task checkboxes, blockquotes, code blocks (syntax highlighting + language flair), tables (edited in place: cell ranges, copy / paste with spreadsheets, row / column handles), callouts, KaTeX math, footnotes, `%%comments%%` and YAML properties. Markdown markup is hidden while the cursor is elsewhere and revealed when the cursor enters the element, exactly like Obsidian.
 - **Three modes**: Live Preview / Source / Reading (`Cmd/Ctrl+E` toggles reading view, `Cmd/Ctrl+/` toggles source mode).
 - **Obsidian syntax**: `[[Wikilink|alias]]`, `![[embed.png|300]]`, `![[Note#Heading]]`, `#tags`, `==highlight==`, `> [!note]` callouts, `$...$` / `$$...$$` math.
-- **Obsidian themes**: run **iMark: Import Obsidian Theme…** and pick a theme folder, a `.obsidian` folder, a vault root or a `.css` snippet in the file dialog. Theme files are copied into iMark's own theme library (the globalStorage folder VS Code assigns to the extension, so `.obsidian/themes` is never touched). Importing a vault can also apply its appearance settings in one step (current theme, light/dark, accent color, enabled snippets). Switch with **iMark: Select Theme…**; the choice is stored in the VS Code setting `imark.theme.name` and theme files hot-reload when edited. iMark ships with the **Monokai Syntax** theme (by lat3ncy, MIT) as the default; a "Follow VS Code" adaptive theme and Obsidian's default look are built in as well.
+- **Obsidian community themes**: **iMark: Manage Themes…** browses, installs, updates and cleans up all Obsidian community themes; a theme guard keeps the layout, tables and menus working whatever a theme does (see [Theme management](#theme-management)).
+- **Obsidian themes from a vault**: run **iMark: Import Obsidian Theme…** and pick a theme folder, a `.obsidian` folder, a vault root or a `.css` snippet in the file dialog. Theme files are copied into iMark's own theme library (the globalStorage folder VS Code assigns to the extension, so `.obsidian/themes` is never touched). Importing a vault can also apply its appearance settings in one step (current theme, light/dark, accent color, enabled snippets). Switch with **iMark: Select Theme…**; the choice is stored in the VS Code setting `imark.theme.name` and theme files hot-reload when edited. iMark ships with the **Monokai Syntax** theme (by lat3ncy, MIT) as the default; a "Follow VS Code" adaptive theme and Obsidian's default look are built in as well.
 - **Mermaid**: every Mermaid diagram type (flowchart, sequence, class, state, ER, gantt, pie, mindmap, timeline, gitGraph, journey, quadrant, xychart, sankey, block, requirement, C4, … loaded on demand) renders in live preview and reading view and follows the light/dark theme. **Click a diagram to open a preview modal** with wheel / double-click zoom, drag to pan, 1:1 / fit-to-window and copy-as-SVG, which makes large architecture diagrams easy to inspect.
 - **Editing helpers**: `[[` completes note names; pasted or dropped images are saved into the attachment folder and linked automatically; Markdown symbols auto-pair; Typora-style shortcuts such as `Cmd+B/I/K`, `Cmd+1…6` for headings, `Cmd+Enter` to toggle a checkbox and `Tab/Shift+Tab` for list indentation.
 - **Deep VS Code integration**: iMark is the default editor for `.md` files (use "Reopen With…" to switch back to the text editor at any time) and builds on VS Code's save / undo / Git / split editors; the status bar shows the current mode and word count.
@@ -47,6 +48,7 @@ Package sources: `sublime/iMark` (Python) and `src/sublime/bridge.ts` (browser b
 | `imark.theme.mode` | `auto` / `light` / `dark` | `auto` |
 | `imark.theme.snippets` | CSS snippets to load: file names imported into iMark's snippet library, or absolute paths | `[]` |
 | `imark.theme.accentColor` | Accent color, e.g. `#7c3aed` | `""` |
+| `imark.theme.protection` | Protect the layout from theme CSS: `auto` (guard layer + check and repair), `guard`, `off` | `auto` |
 | `imark.editor.defaultMode` | `live` / `source` / `reading` | `live` |
 | `imark.editor.readableLineWidth` | Limit the line width (Obsidian's "Readable line length") | `true` |
 | `imark.editor.showInlineTitle` | Show the file name as a title above the note | `true` |
@@ -63,15 +65,42 @@ Package sources: `sublime/iMark` (Python) and `src/sublime/bridge.ts` (browser b
 
 ## Theme management
 
-1. Run **iMark: Import Obsidian Theme…** from the command palette (or right-click a folder in the Explorer → Import Obsidian Theme…).
-2. In the dialog pick a theme folder (containing `theme.css`), a whole `themes` folder, a `.obsidian` folder or a vault root (imports every theme and offers to apply the appearance settings found in `appearance.json`), or a single `.css` snippet.
-3. Run **iMark: Select Theme…** to switch themes. Every imported theme has a remove button in the list; **iMark: Open Themes Folder** reveals the library on disk.
+**iMark: Manage Themes…** (also in the editor's ⋮ menu and in *Select Theme…*) opens the theme manager:
 
-Built-in themes live in `media/themes/` inside the extension. Library location for imported themes: `<VS Code user data>/User/globalStorage/portwaylabs.imark/themes` (on macOS `~/Library/Application Support/Code/User/globalStorage/portwaylabs.imark/themes`).
+- **Community** lists every theme of the official Obsidian community list (`obsidianmd/obsidian-releases`, the list community.obsidian.md and Obsidian itself use) with screenshots, search and a dark / light filter. **Install** downloads the theme from its GitHub repository the way Obsidian does (release asset of the manifest version, then the default branch, then the legacy `obsidian.css`). **iMark: Browse Community Themes…** opens this tab directly. Downloads go through VS Code's proxy settings and fall back to `http.proxy` / `HTTPS_PROXY`.
+- **Installed** shows built-in and installed themes with version and size: **Use**, **Update** (after *Check for updates*), **Remove**, **Import from folder…** and **Clean up…**, which removes the themes not selected in any settings scope and clears the download cache.
+
+Themes from a vault can still be imported: run **iMark: Import Obsidian Theme…** (or right-click a folder in the Explorer) and pick a theme folder (containing `theme.css`), a whole `themes` folder, a `.obsidian` folder or a vault root (imports every theme and offers to apply the appearance settings found in `appearance.json`), or a single `.css` snippet. **iMark: Select Theme…** switches themes quickly; **iMark: Open Themes Folder** reveals the library on disk.
+
+Built-in themes live in `media/themes/` inside the extension. Library location: `<VS Code user data>/User/globalStorage/portwaylabs.imark/themes` (on macOS `~/Library/Application Support/Code/User/globalStorage/portwaylabs.imark/themes`).
+
+### Theme protection
+
+Obsidian themes are written for Obsidian, and some of their rules can break iMark's layout. `imark.theme.protection` (default `auto`) keeps notes usable with any theme:
+
+- A guard stylesheet in a CSS cascade layer (`media/css/imark-guard.css`) wins over every theme rule, including `!important` ones, for structural properties only: the editor / reading-view scroll containers, the table width model, table cell editing, row / column handles and iMark's menus. Colours, fonts, borders and spacing stay theme-controlled.
+- After each theme change iMark measures the visible view. A squeezed or off-screen text column, a font size outside 9–40 px, hidden text or text with the background colour is repaired with targeted overrides, and a notice names the theme and the problem (with *Select theme…* and *Don't show again*). Problems are also logged to the **iMark** output channel.
+- `guard` keeps only the guard layer; `off` loads themes exactly as they are (for theme development).
 
 ## Tables
 
-Tables stay rendered in live preview and are edited in place: click a cell to edit its Markdown (the other cells stay rendered), `Tab` / `Shift+Tab` move between cells (`Tab` on the last cell adds a row), `Enter` moves down (`Shift+Enter` inserts a `<br>`), arrow keys cross cell borders, `Esc` leaves the table, `Cmd/Ctrl+Z` undoes. Hover the table for "+" buttons that add a column / row; right-click a cell for insert / delete row and column, column alignment and "Edit table source". By default (`imark.editor.tableLayout: fit`) a table uses up to the available width: it keeps its natural width when that fits, long cells wrap by words when it does not, and the table scrolls horizontally only when even the minimal column widths (longest word / code / path) do not fit. `tableLayout: natural` never wraps and scrolls instead. Set `imark.editor.wideTables` to let wide tables grow past the readable line width.
+Tables stay rendered in live preview and are edited in place: click a cell to edit its Markdown (the other cells stay rendered), `Tab` / `Shift+Tab` move between cells (`Tab` on the last cell adds a row), `Enter` moves down (`Shift+Enter` inserts a `<br>`), arrow keys cross cell borders, `Esc` leaves the table, `Cmd/Ctrl+Z` undoes. Copy, cut and paste work inside cells as in any text field.
+
+| Action | How |
+| --- | --- |
+| Select cells | Drag across cells, `Shift`+click, `Shift`+arrow from a fully selected cell, or `Cmd/Ctrl+A` twice for the whole table |
+| Select a row / column | Hover the table and click the handle on the left of the row or above the column (it opens the row / column menu) |
+| Copy / cut cells | `Cmd/Ctrl+C` / `X` on a selection: copies a Markdown table (plain text) plus an HTML table, so it pastes into other notes and into spreadsheets |
+| Paste cells | Paste TSV from a spreadsheet, a Markdown table or copied cells into a cell or a selection; the table grows as needed. One value pasted over a selection fills it |
+| Clear cells | `Delete` / `Backspace` on a selection |
+| Insert row below / above | `Cmd/Ctrl+Enter` / `Cmd/Ctrl+Shift+Enter`, or the "+" button below the table |
+| Delete row | `Cmd/Ctrl+Shift+Backspace` (the rows of a selection), or the row handle / context menu |
+| Delete column | `Cmd/Ctrl+Alt+Shift+Backspace`, or the column handle / context menu |
+| Move row | `Alt+Up` / `Alt+Down` |
+| Move column, duplicate row, alignment | Row / column handle menus and the right-click menu |
+| Copy or delete the whole table | Right-click menu: *Copy table as Markdown*, *Delete table*, *Edit table source* |
+
+By default (`imark.editor.tableLayout: fit`) a table uses up to the available width: it keeps its natural width when that fits, long cells wrap by words when it does not, and the table scrolls horizontally only when even the minimal column widths (longest word / code / path) do not fit. `tableLayout: natural` never wraps and scrolls instead. Set `imark.editor.wideTables` to let wide tables grow past the readable line width. The table width model and the editing controls are part of the theme guard, so themes cannot stretch tables or make cells unselectable.
 
 ## Mermaid
 

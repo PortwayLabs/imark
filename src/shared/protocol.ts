@@ -6,6 +6,8 @@ export type ThemeMode = 'auto' | 'light' | 'dark';
 export type Platform = 'mac' | 'win' | 'linux';
 export type LinkStyle = 'markdown' | 'wikilink';
 export type TableLayout = 'fit' | 'natural';
+/** How strictly iMark protects its layout from theme CSS (`imark.theme.protection`). */
+export type ThemeProtection = 'auto' | 'guard' | 'off';
 
 /** A text change relative to the document the sender currently holds. */
 export interface TextChange {
@@ -43,6 +45,10 @@ export interface ThemeInfo {
   mode: ThemeMode;
   /** Inline CSS appended last (accent color override, user font size). */
   extraCss: string;
+  /** Layout protection; missing = `auto` (guard layer + runtime health check and repairs). */
+  protection?: ThemeProtection;
+  /** Do not show the theme-problem notice for this theme (the user silenced it). */
+  quietIssues?: boolean;
 }
 
 /** A root folder the webview may load resources from. */
@@ -220,7 +226,18 @@ export interface NotifyMessage {
 
 export interface RunCommandMessage {
   type: 'command';
-  command: 'openSource' | 'selectTheme' | 'toggleReadableLineWidth';
+  command: 'openSource' | 'selectTheme' | 'manageThemes' | 'toggleReadableLineWidth';
+}
+
+/** Result of the runtime theme health check (see render/themeHealth.ts). */
+export interface ThemeIssueMessage {
+  type: 'themeIssue';
+  /** Display name of the theme the report is about. */
+  theme: string;
+  problems: string[];
+  repaired: string[];
+  /** `ignore`: the user asked not to be warned about this theme again. */
+  action?: 'report' | 'ignore';
 }
 
 export interface WebviewFocusMessage {
@@ -240,6 +257,7 @@ export type WebviewMessage =
   | StatsMessage
   | NotifyMessage
   | RunCommandMessage
+  | ThemeIssueMessage
   | WebviewFocusMessage;
 
 // ---- Helpers shared by both sides -----------------------------------------

@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import { IMarkEditorProvider, VIEW_TYPE } from './editorProvider';
 import { DEFAULT_THEME, ThemeManager, type ThemeEntry } from './themeManager';
 import { FileIndex } from './fileIndex';
+import { ThemeGallery } from './themeGallery';
 
 export function activate(context: vscode.ExtensionContext): void {
   const themes = new ThemeManager(context);
@@ -89,7 +90,7 @@ export function activate(context: vscode.ExtensionContext): void {
   }
 
   async function selectTheme(): Promise<void> {
-    type Item = vscode.QuickPickItem & { value?: string; action?: 'import' | 'folder'; theme?: ThemeEntry };
+    type Item = vscode.QuickPickItem & { value?: string; action?: 'import' | 'folder' | 'browse' | 'manage'; theme?: ThemeEntry };
     const removeButton: vscode.QuickInputButton = { iconPath: new vscode.ThemeIcon('trash'), tooltip: 'Remove this theme from iMark' };
     const build = (): Item[] => {
       const cfg = vscode.workspace.getConfiguration('imark.theme');
@@ -116,6 +117,8 @@ export function activate(context: vscode.ExtensionContext): void {
       }
       items.push(
         { label: '', kind: vscode.QuickPickItemKind.Separator },
+        { label: '$(extensions) Browse community themes…', description: 'download Obsidian community themes', action: 'browse' },
+        { label: '$(settings-gear) Manage themes…', description: 'update, remove and clean up installed themes', action: 'manage' },
         { label: '$(cloud-download) Import theme…', description: 'pick a theme folder, a themes folder, an Obsidian vault or a .css snippet', action: 'import' },
         { label: '$(folder-opened) Open iMark themes folder', description: themes.libraryDir, action: 'folder' },
       );
@@ -145,6 +148,11 @@ export function activate(context: vscode.ExtensionContext): void {
         qp.hide();
         const imported = await importThemes();
         if (imported.length > 1) await selectTheme();
+        return;
+      }
+      if (picked.action === 'browse' || picked.action === 'manage') {
+        qp.hide();
+        ThemeGallery.show(context, themes, { importThemes }, picked.action === 'browse' ? 'community' : 'installed');
         return;
       }
       if (picked.action === 'folder') {
@@ -199,6 +207,8 @@ export function activate(context: vscode.ExtensionContext): void {
       await themes.removeTheme(picked.id);
       if (vscode.workspace.getConfiguration('imark.theme').get<string>('name') === picked.id) await themes.setTheme(DEFAULT_THEME);
     }),
+    vscode.commands.registerCommand('imark.manageThemes', () => ThemeGallery.show(context, themes, { importThemes }, 'installed')),
+    vscode.commands.registerCommand('imark.browseThemes', () => ThemeGallery.show(context, themes, { importThemes }, 'community')),
     vscode.commands.registerCommand('imark.openThemesFolder', () => vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(themes.libraryDir))),
   );
 }

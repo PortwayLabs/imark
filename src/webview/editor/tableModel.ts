@@ -9,6 +9,14 @@ export interface TableModel {
   rows: string[][];
 }
 
+/** A rectangular block of cells; `r = -1` is the header row. Bounds are inclusive. */
+export interface CellRange {
+  r0: number;
+  c0: number;
+  r1: number;
+  c1: number;
+}
+
 /** Split a table row into raw cell strings, honouring `\|` escapes and inline code. */
 export function splitRow(line: string): string[] {
   let text = line.trim();
@@ -155,6 +163,21 @@ export function deleteRow(model: TableModel, index: number): TableModel {
   return { ...model, rows };
 }
 
+/** Delete body rows `from..to` (inclusive, clamped); the header row is never deleted. */
+export function deleteRows(model: TableModel, from: number, to: number): TableModel {
+  const a = Math.max(0, Math.min(from, to));
+  const b = Math.min(model.rows.length - 1, Math.max(from, to));
+  if (b < a) return model;
+  return { ...model, rows: model.rows.filter((_, i) => i < a || i > b) };
+}
+
+export function duplicateRow(model: TableModel, index: number): TableModel {
+  if (index < 0 || index >= model.rows.length) return model;
+  const rows = model.rows.slice();
+  rows.splice(index + 1, 0, model.rows[index].slice());
+  return { ...model, rows };
+}
+
 export function insertColumn(model: TableModel, index: number): TableModel {
   const at = Math.max(0, Math.min(index, model.header.length));
   const ins = <T>(arr: T[], v: T) => [...arr.slice(0, at), v, ...arr.slice(at)];
@@ -166,8 +189,15 @@ export function insertColumn(model: TableModel, index: number): TableModel {
 }
 
 export function deleteColumn(model: TableModel, index: number): TableModel {
-  if (model.header.length <= 1 || index < 0 || index >= model.header.length) return model;
-  const del = <T>(arr: T[]) => arr.filter((_, i) => i !== index);
+  return deleteColumns(model, index, index);
+}
+
+/** Delete columns `from..to` (inclusive, clamped); at least one column is always kept. */
+export function deleteColumns(model: TableModel, from: number, to: number): TableModel {
+  const a = Math.max(0, Math.min(from, to));
+  const b = Math.min(model.header.length - 1, Math.max(from, to));
+  if (b < a || b - a + 1 >= model.header.length) return model;
+  const del = <T>(arr: T[]) => arr.filter((_, i) => i < a || i > b);
   return { header: del(model.header), aligns: del(model.aligns), rows: model.rows.map(del) };
 }
 
@@ -195,4 +225,92 @@ export function setAlign(model: TableModel, col: number, align: Align): TableMod
   const aligns = model.aligns.slice();
   aligns[col] = align;
   return { ...model, aligns };
+}
+
+// ---- ranges, copy & paste -----------------------------------------------------------------
+
+export function normalizeRange(r: CellRange): CellRange {
+  return { r0: Math.min(r.r0, r.r1), c0: Math.min(r.c0, r.c1), r1: Math.max(r.r0, r.r1), c1: Math.max(r.c0, r.c1) };
+}
+
+export function cellText(model: TableModel, r: number, c: number): string {
+  return (r < 0 ? model.header[c] : model.rows[r]?.[c]) ?? '';
+}
+
+/** Cell sources of a range, row by row. */
+export function rangeCells(model: TableModel, range: CellRange): string[][] {
+  const { r0, c0, r1, c1 } = normalizeRange(range);
+  const out: string[][] = [];
+  for (let r = r0; r <= r1; r++) {
+    const row: string[] = [];
+    for (let c = c0; c <= c1; c++) row.push(cellText(model, r, c));
+    out.push(row);
+  }
+  return out;
+}
+
+/** Cell source → plain text for the clipboard (`<br>` → space, `\|` → `|`). */
+export function cellToPlain(text: string): string {
+  return text.replace(/<br\s*\/?>/gi, ' ').replace(/\\\|/g, '|');
+}
+
+/** Tab-separated values (spreadsheet friendly). */
+export function rangeToTsv(model: TableModel, range: CellRange): string {
+  return rangeCells(model, range)
+    .map((row) => row.map((c) => cellToPlain(c).replace(/\t/g, ' ')).join('\t'))
+    .join('\n');
+}
+
+/** A range as a standalone Markdown table; the first selected row becomes the header. */
+export function rangeToMarkdown(model: TableModel, range: CellRange): string {
+  const n = normalizeRange(range);
+  const cells = rangeCells(model, n);
+  const aligns = model.aligns.slice(n.c0, n.c1 + 1);
+  if (n.r0 < 0) return serializeTable({ header: cells[0], aligns, rows: cells.slice(1) });
+  return serializeTable({ header: model.header.slice(n.c0, n.c1 + 1), aligns, rows: cells });
+}
+
+/**
+ * Parse clipboard text into a grid of cell sources: a Markdown table or TSV
+ * (spreadsheets). Returns null for anything else, which is pasted into one cell
+ * as text (line breaks become `<br>`).
+ */
+export function parseClipboardGrid(text: string): string[][] | null {
+  const norm = text.replace(/\r\n?/g, '\n').replace(/\n+$/, '');
+  if (!norm) return null;
+  const md = parseTable(norm.trim());
+  if (md) return [md.header, ...md.rows];
+  if (!norm.includes('\t')) return null;
+  return norm.split('\n').map((l) => l.split('\t').map((c) => sanitizeCell(c)));
+}
+
+/** Write a grid into the table starting at (r, c), growing rows / columns as needed. */
+export function pasteGrid(model: TableModel, r: number, c: number, grid: string[][]): TableModel {
+  if (!grid.length) return model;
+  const width = Math.max(...grid.map((g) => g.length));
+  let next: TableModel = { header: model.header.slice(), aligns: model.aligns.slice(), rows: model.rows.map((row) => row.slice()) };
+  while (next.header.length < c + width) next = insertColumn(next, next.header.length);
+  while (next.rows.length < r + grid.length) next = insertRow(next, next.rows.length);
+  grid.forEach((row, i) => {
+    row.forEach((cell, j) => {
+      const rr = r + i;
+      if (rr < 0) next.header[c + j] = cell;
+      else next.rows[rr][c + j] = cell;
+    });
+  });
+  return next;
+}
+
+/** Empty every cell in a range. */
+export function clearRange(model: TableModel, range: CellRange): TableModel {
+  const { r0, c0, r1, c1 } = normalizeRange(range);
+  const header = model.header.slice();
+  const rows = model.rows.map((row) => row.slice());
+  for (let r = r0; r <= r1; r++) {
+    for (let c = c0; c <= c1; c++) {
+      if (r < 0) header[c] = '';
+      else if (rows[r]) rows[r][c] = '';
+    }
+  }
+  return { ...model, header, rows };
 }

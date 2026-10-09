@@ -6,10 +6,11 @@ iMark 把 **Typora / Obsidian 的实时预览（Live Preview）编辑体验**带
 
 ## 特性
 
-- **实时预览编辑**：标题、粗体/斜体/删除线/高亮、行内代码、链接、图片、列表、任务复选框、引用、代码块（语法高亮 + 语言角标）、表格（逐格可视化编辑）、Callout、KaTeX 数学公式、脚注、`%%注释%%`、YAML 属性。光标离开元素时隐藏 Markdown 标记，进入时显示（与 Obsidian 一致）。
+- **实时预览编辑**：标题、粗体/斜体/删除线/高亮、行内代码、链接、图片、列表、任务复选框、引用、代码块（语法高亮 + 语言角标）、表格（可视化编辑：区域选择、与电子表格互相复制粘贴、行 / 列手柄）、Callout、KaTeX 数学公式、脚注、`%%注释%%`、YAML 属性。光标离开元素时隐藏 Markdown 标记，进入时显示（与 Obsidian 一致）。
 - **三种模式**：Live Preview / 源码模式 / 阅读视图（`Cmd/Ctrl+E` 切换阅读视图，`Cmd/Ctrl+/` 切换源码模式）。
 - **Obsidian 语法**：`[[Wikilink|别名]]`、`![[嵌入.png|300]]`、`![[笔记#标题]]`、`#标签`、`==高亮==`、`> [!note]` Callout、`$...$` / `$$...$$` 公式。
-- **Obsidian 主题**：通过 **iMark: Import Obsidian Theme…** 弹窗选择主题目录 / `.obsidian` 目录 / vault 根目录 / `.css` 片段导入，主题文件复制到 iMark 自己的主题库（VS Code 为插件分配的 globalStorage 目录，不占用 `.obsidian/themes`）；导入 vault 时可一键套用其外观配置（当前主题、明暗、强调色、启用的片段）。用 **iMark: Select Theme…** 切换，选择保存在 VS Code 设置 `imark.theme.name` 中；主题文件修改后自动热更新。插件内置 **Monokai Syntax** 主题（作者 lat3ncy，MIT 许可）作为默认主题，另外提供“跟随 VS Code 配色”自适应主题与 Obsidian 默认外观。
+- **Obsidian 社区主题**：**iMark: Manage Themes…** 可浏览、下载安装、更新和清理全部 Obsidian 社区主题；主题防护保证任何主题下排版、表格和菜单都能正常工作（见[主题管理](#主题管理)）。
+- **从 vault 导入主题**：通过 **iMark: Import Obsidian Theme…** 弹窗选择主题目录 / `.obsidian` 目录 / vault 根目录 / `.css` 片段导入，主题文件复制到 iMark 自己的主题库（VS Code 为插件分配的 globalStorage 目录，不占用 `.obsidian/themes`）；导入 vault 时可一键套用其外观配置（当前主题、明暗、强调色、启用的片段）。用 **iMark: Select Theme…** 切换，选择保存在 VS Code 设置 `imark.theme.name` 中；主题文件修改后自动热更新。插件内置 **Monokai Syntax** 主题（作者 lat3ncy，MIT 许可）作为默认主题，另外提供“跟随 VS Code 配色”自适应主题与 Obsidian 默认外观。
 - **Mermaid**：支持 Mermaid 全部图表类型（flowchart、sequence、class、state、ER、gantt、pie、mindmap、timeline、gitGraph、journey、quadrant、xychart、sankey、block、requirement、C4 等，按需懒加载），实时预览与阅读视图均可渲染并跟随明暗主题；**点击图表弹出预览层**，支持滚轮/双击缩放、拖拽平移、1:1 / 适应窗口、复制 SVG，方便查看复杂架构图。
 - **编辑效率**：`[[` 自动补全笔记名；粘贴 / 拖入图片自动保存到附件目录并插入链接；Markdown 符号自动配对；`Cmd+B/I/K`、`Cmd+1~6` 标题、`Cmd+Enter` 切换复选框、`Tab/Shift+Tab` 列表缩进等 Typora 风格快捷键。
 - **与 VS Code 深度集成**：作为 `.md` 文件的默认编辑器（可随时 “Reopen With…” 切回文本编辑器），复用 VS Code 的保存 / 撤销 / Git / 多窗格；状态栏显示当前模式与字数。
@@ -47,6 +48,7 @@ iMark 同时提供 **Sublime Text 4 插件包**（build 4050+）。Sublime Text 
 | `imark.theme.mode` | `auto` / `light` / `dark` | `auto` |
 | `imark.theme.snippets` | 加载的 CSS 片段：已导入到 iMark 片段库的文件名，或绝对路径 | `[]` |
 | `imark.theme.accentColor` | 强调色，如 `#7c3aed` | `""` |
+| `imark.theme.protection` | 防止主题 CSS 破坏排版：`auto`（防护层 + 自动检查与修复）/ `guard` / `off` | `auto` |
 | `imark.editor.defaultMode` | `live` / `source` / `reading` | `live` |
 | `imark.editor.readableLineWidth` | 限制行宽（Obsidian 的 Readable line length） | `true` |
 | `imark.editor.showInlineTitle` | 在正文顶部显示文件名标题 | `true` |
@@ -63,15 +65,42 @@ iMark 同时提供 **Sublime Text 4 插件包**（build 4050+）。Sublime Text 
 
 ## 主题管理
 
-1. 命令面板运行 **iMark: Import Obsidian Theme…**（或在资源管理器中右键文件夹 → Import Obsidian Theme…）。
-2. 在弹窗中选择：某个主题文件夹（含 `theme.css`）、整个 `themes` 目录、`.obsidian` 目录或 vault 根目录（会导入全部主题并询问是否套用 `appearance.json` 中的外观配置）、或单个 `.css` 片段。
-3. 运行 **iMark: Select Theme…** 切换主题；列表中每个已导入主题右侧有删除按钮，也可通过 **iMark: Open Themes Folder** 打开主题库目录。
+**iMark: Manage Themes…**（编辑器右上角 ⋮ 菜单和 *Select Theme…* 列表中也有入口）打开主题管理器：
 
-内置主题位于插件目录的 `media/themes/`。导入主题的主题库位置：`<VS Code 用户数据目录>/User/globalStorage/portwaylabs.imark/themes`（macOS 为 `~/Library/Application Support/Code/User/globalStorage/portwaylabs.imark/themes`）。
+- **社区主题**：列出 Obsidian 官方社区主题列表（`obsidianmd/obsidian-releases`，即 community.obsidian.md 与 Obsidian 本身使用的列表）中的全部主题，带预览图、搜索和深色 / 浅色筛选。点 **下载安装** 会按 Obsidian 的方式从主题的 GitHub 仓库下载（先取 manifest 版本对应的 release 资源，其次默认分支，最后是旧版 `obsidian.css`）。**iMark: Browse Community Themes…** 直接打开此页。下载走 VS Code 的代理设置，失败时回退到 `http.proxy` / `HTTPS_PROXY`。
+- **已安装**：显示内置与已安装主题及其版本、占用空间，可 **使用**、**更新**（先点 *检查更新*）、**删除**、**从文件夹导入…**，以及 **清理…**：删除所有设置范围中都未使用的主题，并清理下载缓存。
+
+仍可从 vault 导入主题：运行 **iMark: Import Obsidian Theme…**（或在资源管理器中右键文件夹），选择某个主题文件夹（含 `theme.css`）、整个 `themes` 目录、`.obsidian` 目录或 vault 根目录（会导入全部主题并询问是否套用 `appearance.json` 中的外观配置）、或单个 `.css` 片段。**iMark: Select Theme…** 用于快速切换，**iMark: Open Themes Folder** 打开主题库目录。
+
+内置主题位于插件目录的 `media/themes/`。主题库位置：`<VS Code 用户数据目录>/User/globalStorage/portwaylabs.imark/themes`（macOS 为 `~/Library/Application Support/Code/User/globalStorage/portwaylabs.imark/themes`）。
+
+### 主题防护
+
+Obsidian 主题是为 Obsidian 编写的，其中部分规则会破坏 iMark 的排版。`imark.theme.protection`（默认 `auto`）保证任何主题下笔记都能正常编辑和阅读：
+
+- 防护样式表位于独立的 CSS 层（`media/css/imark-guard.css`），对结构性属性的优先级高于任何主题规则（包括 `!important`）：编辑器 / 阅读视图的滚动容器、表格宽度模型、表格单元格编辑、行 / 列手柄以及 iMark 的菜单。颜色、字体、边框和间距仍由主题决定。
+- 每次切换主题后 iMark 会检测当前视图：正文列被挤压或移出可视区、字号不在 9–40 px 之间、文字被隐藏或与背景同色时，会做针对性修复，并弹出提示说明是哪个主题、什么问题（可 *选择主题…* 或 *不再提示*）。问题同时记录在 **iMark** 输出面板。
+- `guard` 只保留防护层；`off` 原样加载主题（用于开发主题）。
 
 ## 表格
 
-表格在实时预览中始终保持渲染并可直接编辑：点击单元格编辑该格的 Markdown（其他格保持渲染），`Tab` / `Shift+Tab` 在格间移动（末格 `Tab` 自动新增一行），`Enter` 下移（`Shift+Enter` 插入 `<br>`），方向键可跨越格边界，`Esc` 离开表格，`Cmd/Ctrl+Z` 撤销。悬停表格时右侧 / 下方出现 “+” 按钮用于添加列 / 行；右键单元格可插入 / 删除行列、设置列对齐、进入“编辑表格源码”。默认（`imark.editor.tableLayout: fit`）表格最多占满可用宽度：放得下就按自然宽度显示，放不下时长单元格按词折行，只有列宽压到最小（最长单词 / 代码 / 路径）仍放不下时才横向滚动；`tableLayout: natural` 则从不折行、超出即滚动。如需让宽表格突破可读行宽，可开启 `imark.editor.wideTables`。
+表格在实时预览中始终保持渲染并可直接编辑：点击单元格编辑该格的 Markdown（其他格保持渲染），`Tab` / `Shift+Tab` 在格间移动（末格 `Tab` 自动新增一行），`Enter` 下移（`Shift+Enter` 插入 `<br>`），方向键可跨越格边界，`Esc` 离开表格，`Cmd/Ctrl+Z` 撤销。单元格内的复制、剪切、粘贴与普通文本框一致。
+
+| 操作 | 方式 |
+| --- | --- |
+| 选择多个单元格 | 在单元格间拖动、`Shift`+点击、在已全选的单元格中按 `Shift`+方向键，或连按两次 `Cmd/Ctrl+A` 选中整张表 |
+| 选择整行 / 整列 | 悬停表格，点击行左侧或列上方的手柄（同时打开行 / 列菜单） |
+| 复制 / 剪切单元格 | 选区上按 `Cmd/Ctrl+C` / `X`：复制为 Markdown 表格（纯文本）和 HTML 表格，可粘贴到其他笔记或电子表格 |
+| 粘贴单元格 | 把电子表格的 TSV、Markdown 表格或复制的单元格粘贴到单元格或选区，表格会按需扩展；单个值粘贴到选区会填满整个选区 |
+| 清空单元格 | 选区上按 `Delete` / `Backspace` |
+| 在下方 / 上方插入行 | `Cmd/Ctrl+Enter` / `Cmd/Ctrl+Shift+Enter`，或表格下方的 “+” 按钮 |
+| 删除行 | `Cmd/Ctrl+Shift+Backspace`（删除选区覆盖的行），或行手柄 / 右键菜单 |
+| 删除列 | `Cmd/Ctrl+Alt+Shift+Backspace`，或列手柄 / 右键菜单 |
+| 移动行 | `Alt+↑` / `Alt+↓` |
+| 移动列、复制行、对齐 | 行 / 列手柄菜单与右键菜单 |
+| 复制或删除整张表 | 右键菜单：*Copy table as Markdown*、*Delete table*、*Edit table source* |
+
+默认（`imark.editor.tableLayout: fit`）表格最多占满可用宽度：放得下就按自然宽度显示，放不下时长单元格按词折行，只有列宽压到最小（最长单词 / 代码 / 路径）仍放不下时才横向滚动；`tableLayout: natural` 则从不折行、超出即滚动。如需让宽表格突破可读行宽，可开启 `imark.editor.wideTables`。表格宽度模型和编辑控件属于主题防护的一部分，主题无法拉伸表格或让单元格无法选中。
 
 ## Mermaid
 
