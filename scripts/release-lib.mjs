@@ -104,6 +104,7 @@ export function parseArgs(argv) {
     dryRun: false,
     skipTests: false,
     skipVscodeTests: false,
+    skipSublime: false,
     skipChangelog: false,
     noGit: false,
     push: false,
@@ -124,6 +125,9 @@ export function parseArgs(argv) {
         break;
       case '--skip-vscode-tests':
         opts.skipVscodeTests = true;
+        break;
+      case '--skip-sublime':
+        opts.skipSublime = true;
         break;
       case '--skip-changelog':
         opts.skipChangelog = true;

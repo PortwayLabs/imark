@@ -40,8 +40,18 @@ suite('iMark extension', () => {
 
   test('commands are registered', async () => {
     const cmds = await vscode.commands.getCommands(true);
-    for (const c of ['imark.openInIMark', 'imark.openSource', 'imark.toggleReadingView', 'imark.toggleSourceMode', 'imark.selectTheme', 'imark.importTheme', 'imark.removeTheme', 'imark.openThemesFolder', 'imark.reloadTheme', 'imark.toggleReadableLineWidth']) {
+    for (const c of ['imark.openInIMark', 'imark.openSource', 'imark.toggleReadingView', 'imark.toggleSourceMode', 'imark.selectTheme', 'imark.importTheme', 'imark.removeTheme', 'imark.openThemesFolder', 'imark.reloadTheme', 'imark.toggleReadableLineWidth', 'imark.manageThemes', 'imark.browseThemes']) {
       assert.ok(cmds.includes(c), `${c} should be registered`);
     }
+  });
+
+  test('theme manager panel opens', async () => {
+    await vscode.commands.executeCommand('imark.manageThemes');
+    await wait(800);
+    const tab = vscode.window.tabGroups.activeTabGroup.activeTab;
+    assert.ok(tab, 'a tab should be active');
+    assert.ok(tab.input instanceof vscode.TabInputWebview, 'the theme manager is a webview panel');
+    assert.match((tab.input as vscode.TabInputWebview).viewType, /imark\.themes$/);
+    await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
   });
 });

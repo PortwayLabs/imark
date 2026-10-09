@@ -1,0 +1,80 @@
+// iMark for Sublime Text — default settings.
+// Override in Packages/User/iMark.sublime-settings (Preferences ▸ Package Settings ▸ iMark ▸ Settings).
+{
+	// ---- Theme ------------------------------------------------------------------------------
+	// "Monokai Syntax" (built-in) / "sublime" (adapt Obsidian variables to the Sublime Text
+	// color scheme) / "obsidian" (Obsidian's default look) / id of an imported theme.
+	"theme.name": "Monokai Syntax",
+	// Optional additional themes folder, read-only (for example a vault's .obsidian/themes).
+	// Imported themes always live in Packages/User/iMark/themes.
+	"theme.path": "",
+	// "auto" (follow the Sublime Text color scheme: light or dark) / "light" / "dark".
+	"theme.mode": "auto",
+	// CSS snippets to load: file names imported into Packages/User/iMark/snippets, or absolute paths.
+	"theme.snippets": [],
+	// Accent color, e.g. "#7c3aed". Empty = the theme's accent.
+	"theme.accent_color": "",
+
+	// ---- Editor ------------------------------------------------------------------------------
+	// "live" / "source" / "reading".
+	"editor.default_mode": "live",
+	// Limit the line width (Obsidian's "Readable line length").
+	"editor.readable_line_width": true,
+	// Show the file name as a title above the note.
+	"editor.show_inline_title": true,
+	// Show the Obsidian-style view header (mode toggle and menu).
+	"editor.show_header": true,
+	// Font size in px; 0 uses the theme default.
+	"editor.font_size": 0,
+	// Show line numbers in source mode.
+	"editor.line_numbers": false,
+	// Enable the browser's spell checker.
+	"editor.spellcheck": false,
+	// Auto-pair * _ ` ~ = $.
+	"editor.auto_pair_markdown": true,
+	// Open links with a plain click while their markup is hidden (Cmd/Ctrl+click always works).
+	"editor.smart_click_links": true,
+	// Let tables wider than the readable line width grow towards the editor width.
+	"editor.wide_tables": false,
+	// "fit": use the available width, wrap long cells, scroll as a last resort; "natural": never wrap.
+	"editor.table_layout": "fit",
+
+	// ---- Attachments ---------------------------------------------------------------------------
+	// Folder for pasted / dropped images, relative to the note.
+	"attachments.folder": "assets",
+	// Link syntax for inserted images: "markdown" / "wikilink".
+	"attachments.link_style": "markdown",
+
+	// ---- In-Sublime preview (minihtml, read-only) --------------------------------------------------
+	// Show images (PNG / JPEG / GIF) below image links and embeds in Markdown buffers.
+	"preview.inline_images": true,
+	// Show a hint below Mermaid blocks (they render in the browser editor only).
+	"preview.block_hints": true,
+	// Hover over wikilinks, images, links and footnote references for a popup preview.
+	"preview.hover_popups": true,
+	// Maximum width in px for inline images and images in the reading sheet.
+	"preview.max_image_width": 640,
+	// Delay before the reading sheet / inline images refresh after typing.
+	"preview.refresh_delay_ms": 200,
+	// Documents larger than this only refresh the reading sheet on save.
+	"preview.max_size_kb": 512,
+	// Show the file name as a title at the top of the reading sheet.
+	"preview.show_title": true,
+
+	// ---- Browser / server ------------------------------------------------------------------------
+	// How to open the editor:
+	//   "default"  – the system default browser
+	//   "app"      – a Chromium-family app window (Chrome, Edge, Brave, …) without tabs or address bar
+	//   [ "cmd", "--arg", "{url}" ] – a custom command ({url} is replaced by the editor URL)
+	"browser": "default",
+	// Following a link to another note navigates the browser tab to that note (false: only open it in Sublime Text).
+	"follow_links_in_browser": true,
+	// When a browser tab reconnects to a file that is no longer open, open the file again in Sublime Text.
+	"reopen_closed_files": true,
+	// Local port for the editor server; 0 picks a free port. The server only listens on 127.0.0.1.
+	"server.port": 0,
+	"server.host": "127.0.0.1",
+
+	// Log to the console and to Cache/iMark/imark.log.
+	"debug": false
+}

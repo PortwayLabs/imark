@@ -34,5 +34,11 @@
   "imark.config.editor.wideTables.description": "允许比可读行宽更宽的表格居中向两侧扩展到编辑器宽度。默认关闭：表格宽度限制在正文宽度内，超出部分横向滚动。",
   "imark.config.editor.tableLayout.description": "表格如何使用横向空间。`fit`（默认）：最多占满可用宽度，长单元格按词折行，只有列宽压到最小仍放不下时才横向滚动。`natural`：从不折行，按自然宽度显示，超出时横向滚动。",
   "imark.config.editor.tableLayout.enum.fit": "适应可用宽度，长单元格折行，实在放不下才滚动",
-  "imark.config.editor.tableLayout.enum.natural": "自然宽度不折行，超出时横向滚动"
+  "imark.config.editor.tableLayout.enum.natural": "自然宽度不折行，超出时横向滚动",
+  "imark.command.manageThemes.title": "管理主题…",
+  "imark.command.browseThemes.title": "浏览社区主题…",
+  "imark.config.theme.protection.description": "保护 iMark 的排版不被主题 CSS 破坏。`auto`（默认）：防护层保证编辑器结构、表格和菜单在任何主题下都能正常工作；每次切换主题后自动检查，修复被挤压的正文列、异常字号或看不见的文字，并给出提示。`guard`：只启用防护层。`off`：原样加载主题（用于开发主题）。",
+  "imark.config.theme.protection.enum.auto": "防护层 + 自动检查与修复",
+  "imark.config.theme.protection.enum.guard": "仅防护层（不做运行时检查）",
+  "imark.config.theme.protection.enum.off": "不做保护：主题可以修改一切"
 }

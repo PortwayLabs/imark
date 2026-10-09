@@ -5,6 +5,20 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { ThemeInfo, ThemeMode } from '../shared/protocol';
 import { appearanceMode, copySnippet, copyTheme, findVaultDir, planImport, themeSource, themesIn, type ImportPlan, type ThemeSource } from './themeImport';
+import {
+  compareVersions,
+  createFetch,
+  dirSize,
+  downloadTheme,
+  fetchManifest,
+  loadCatalog,
+  readInstallInfo,
+  writeTheme,
+  type Catalog,
+  type CatalogEntry,
+  type FetchFn,
+  type InstallInfo,
+} from './themeCatalog';
 
 export interface ThemeEntry extends ThemeSource {
   cssPath: string;
@@ -23,6 +37,21 @@ export interface ResolvedTheme {
   accentColor: string;
   /** Set when the configured theme could not be found. */
   missing?: string;
+}
+
+/** A theme in iMark's library with management details (for the theme manager). */
+export interface LibraryTheme extends ThemeEntry {
+  /** Bytes on disk (library themes only). */
+  size: number;
+  /** Set for themes installed from the community catalog. */
+  install: InstallInfo | null;
+  /** Selected in user, workspace or folder settings. */
+  inUse: boolean;
+}
+
+export interface CleanupResult {
+  removed: string[];
+  freedBytes: number;
 }
 
 export interface ImportResult {
@@ -71,11 +100,25 @@ export class ThemeManager implements vscode.Disposable {
   readonly libraryDir: string;
   readonly snippetsDir: string;
   readonly bundledDir: string;
+  readonly cacheDir: string;
+  /** VS Code applies its proxy settings to `https`; when the direct request fails anyway,
+   *  retry through `http.proxy` / `HTTPS_PROXY` explicitly. */
+  private readonly fetchFn: FetchFn = async (url, init) => {
+    try {
+      return await this.directFetch(url, init);
+    } catch (e) {
+      const proxy = vscode.workspace.getConfiguration('http').get<string>('proxy', '').trim() || process.env.HTTPS_PROXY || process.env.https_proxy || process.env.HTTP_PROXY || process.env.http_proxy || '';
+      if (!/^http:\/\//i.test(proxy) || init?.signal?.aborted) throw e;
+      return createFetch({ proxy })(url, init);
+    }
+  };
+  private readonly directFetch: FetchFn = createFetch();
 
   constructor(private readonly context: vscode.ExtensionContext) {
     this.bundledDir = path.join(context.extensionUri.fsPath, 'media', 'themes');
     this.libraryDir = path.join(context.globalStorageUri.fsPath, 'themes');
     this.snippetsDir = path.join(context.globalStorageUri.fsPath, 'snippets');
+    this.cacheDir = path.join(context.globalStorageUri.fsPath, 'cache');
     fs.mkdirSync(this.libraryDir, { recursive: true });
     fs.mkdirSync(this.snippetsDir, { recursive: true });
     this.disposables.push(
@@ -84,6 +127,14 @@ export class ThemeManager implements vscode.Disposable {
       }),
       vscode.window.onDidChangeActiveColorTheme(() => this.fire()),
     );
+  }
+
+  private output: vscode.OutputChannel | undefined;
+
+  /** Append a line to the "iMark" output channel (created on first use). */
+  log(line: string): void {
+    this.output ??= vscode.window.createOutputChannel('iMark');
+    this.output.appendLine(`[${new Date().toLocaleTimeString()}] ${line}`);
   }
 
   private fire() {
@@ -166,6 +217,106 @@ export class ThemeManager implements vscode.Disposable {
     await fs.promises.rm(dir, { recursive: true, force: true });
     this.fire();
     return true;
+  }
+
+  // ---- community themes ------------------------------------------------------------
+
+  private get catalogFile(): string {
+    return path.join(this.cacheDir, 'community-themes.json');
+  }
+
+  getCatalog(force = false): Promise<Catalog> {
+    return loadCatalog(this.catalogFile, this.fetchFn, { force });
+  }
+
+  /** Download a community theme into the library (replacing an older copy). */
+  async installCommunity(entry: CatalogEntry): Promise<ThemeEntry> {
+    const downloaded = await downloadTheme(entry, this.fetchFn);
+    const dir = await writeTheme(entry, downloaded, this.libraryDir);
+    const t = themeSource(dir);
+    if (!t) throw new Error(`theme "${entry.name}" was downloaded but could not be read`);
+    this.fire();
+    return { ...t, cssPath: path.join(dir, 'theme.css'), origin: 'library' };
+  }
+
+  /** Latest versions of library themes that exist in the catalog: id -> newer version. */
+  async checkUpdates(entries: CatalogEntry[]): Promise<Record<string, string>> {
+    const byName = new Map(entries.map((e) => [e.name.toLowerCase(), e]));
+    const out: Record<string, string> = {};
+    const lib = themesIn(this.libraryDir);
+    await Promise.all(
+      lib.map(async (t) => {
+        const info = readInstallInfo(t.dir);
+        const entry = (info && entries.find((e) => e.repo === info.repo)) ?? byName.get(t.name.toLowerCase()) ?? byName.get(t.id.toLowerCase());
+        if (!entry) return;
+        const m = await fetchManifest(entry, this.fetchFn);
+        const latest = typeof m?.version === 'string' ? m.version : '';
+        const installed = info?.version ?? t.version ?? '0.0.0';
+        if (latest && compareVersions(installed, latest) < 0) out[t.id] = latest;
+      }),
+    );
+    return out;
+  }
+
+  /** Theme ids selected anywhere in the settings (user, workspace, folders). */
+  themesInUse(): Set<string> {
+    const used = new Set<string>();
+    const add = (v: unknown) => {
+      if (typeof v === 'string' && v.trim()) used.add(v.trim());
+    };
+    const info = this.config().inspect<string>('name');
+    add(info?.globalValue);
+    add(info?.workspaceValue);
+    add(info?.workspaceFolderValue);
+    for (const f of vscode.workspace.workspaceFolders ?? []) add(vscode.workspace.getConfiguration('imark.theme', f.uri).inspect<string>('name')?.workspaceFolderValue);
+    if (!info?.globalValue && !info?.workspaceValue) used.add(DEFAULT_THEME);
+    // Names are accepted as well as ids.
+    for (const t of this.listThemes()) if (used.has(t.name)) used.add(t.id);
+    return used;
+  }
+
+  async libraryThemes(): Promise<LibraryTheme[]> {
+    const used = this.themesInUse();
+    return Promise.all(
+      this.listThemes().map(async (t) => ({
+        ...t,
+        size: t.origin === 'library' ? await dirSize(t.dir) : 0,
+        install: t.origin === 'library' ? readInstallInfo(t.dir) : null,
+        inUse: used.has(t.id) || used.has(t.name),
+      })),
+    );
+  }
+
+  /** Remove library themes (by id) and/or the download cache. Themes in use are kept. */
+  async cleanUp(opts: { themes?: string[]; unused?: boolean; cache?: boolean }): Promise<CleanupResult> {
+    const result: CleanupResult = { removed: [], freedBytes: 0 };
+    const used = this.themesInUse();
+    const lib = themesIn(this.libraryDir);
+    const targets = lib.filter((t) => (opts.unused ? true : (opts.themes ?? []).includes(t.id)) && !used.has(t.id) && !used.has(t.name));
+    for (const t of targets) {
+      result.freedBytes += await dirSize(t.dir);
+      await fs.promises.rm(t.dir, { recursive: true, force: true });
+      result.removed.push(t.name);
+    }
+    if (opts.cache) {
+      for (const d of [this.cacheDir, path.join(path.dirname(this.libraryDir), 'tmp')]) {
+        result.freedBytes += await dirSize(d);
+        await fs.promises.rm(d, { recursive: true, force: true });
+      }
+    }
+    if (result.removed.length) this.fire();
+    return result;
+  }
+
+  /** Themes whose layout notice the user silenced (by display name). */
+  quietIssues(name: string): boolean {
+    return (this.context.globalState.get<string[]>('imark.quietThemeIssues') ?? []).includes(name);
+  }
+
+  async silenceIssues(name: string): Promise<void> {
+    const list = new Set(this.context.globalState.get<string[]>('imark.quietThemeIssues') ?? []);
+    list.add(name);
+    await this.context.globalState.update('imark.quietThemeIssues', [...list]);
   }
 
   listSnippets(): string[] {
@@ -290,7 +441,8 @@ export class ThemeManager implements vscode.Disposable {
     let extraCss = '';
     const hsl = resolved.accentColor ? hexToHsl(resolved.accentColor) : null;
     if (hsl) extraCss += `body{--accent-h:${hsl.h};--accent-s:${hsl.s}%;--accent-l:${hsl.l}%;}`;
-    return { name: resolved.name, kind: resolved.kind, cssUris, mode: resolved.mode, extraCss };
+    const protection = this.config().get<ThemeInfo['protection']>('protection', 'auto');
+    return { name: resolved.name, kind: resolved.kind, cssUris, mode: resolved.mode, extraCss, protection, quietIssues: this.quietIssues(resolved.name) };
   }
 
   /** Roots the webview must be allowed to load theme assets from. */
@@ -332,6 +484,7 @@ export class ThemeManager implements vscode.Disposable {
     for (const w of this.watchers.values()) w.close();
     this.watchers.clear();
     for (const d of this.disposables) d.dispose();
+    this.output?.dispose();
     this.emitter.dispose();
   }
 }

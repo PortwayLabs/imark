@@ -1,0 +1,314 @@
+/*
+ * iMark — layout guard.
+ *
+ * Obsidian themes are written for Obsidian's app, not for iMark, and some of their
+ * rules break the editor (hidden or squeezed content, scroll containers that stop
+ * scrolling, tables stretched to 100%, cells that cannot be selected ...).
+ *
+ * Everything here lives in the `imark-guard` cascade layer. The layer is declared
+ * before any theme stylesheet, so its `!important` declarations win over every
+ * theme / snippet rule, including the theme's own `!important` ones (important
+ * declarations of earlier layers beat later layers and unlayered styles). Only
+ * structural / functional properties are guarded; colours, fonts, borders and
+ * spacing stay theme-controlled. Inline styles (set by iMark's scripts) still win.
+ *
+ * `body.imark-guard-off` disables the guard (setting `imark.theme.protection: off`).
+ * `body.imark-repair-*` classes are added by the runtime health check (render/themeHealth.ts).
+ */
+@layer imark-guard {
+  /* ---- Shell: the flex column chain down to the editor / reading view ---------------- */
+  body:not(.imark-guard-off) {
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+  html:has(body:not(.imark-guard-off)),
+  body:not(.imark-guard-off) {
+    height: 100% !important;
+  }
+  body:not(.imark-guard-off) :is(.app-container, .horizontal-main-container, .workspace, .workspace-split, .workspace-tabs, .workspace-tab-container, .workspace-leaf) {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    visibility: visible !important;
+  }
+  body:not(.imark-guard-off) .workspace-leaf-content {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    visibility: visible !important;
+  }
+  body:not(.imark-guard-off) .workspace-leaf-content > .view-content {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  /* ---- Editor (CodeMirror) ------------------------------------------------------------- */
+  body:not(.imark-guard-off) .markdown-source-view.mod-cm6 {
+    height: 100% !important;
+  }
+  body:not(.imark-guard-off) .markdown-source-view.mod-cm6 > .cm-editor {
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    height: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  body:not(.imark-guard-off) .markdown-source-view.mod-cm6 .cm-scroller {
+    display: flex !important;
+    align-items: flex-start !important;
+    position: relative !important;
+    overflow-y: auto !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+  }
+  body:not(.imark-guard-off) .markdown-source-view.mod-cm6 .cm-sizer {
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+  body:not(.imark-guard-off) .markdown-source-view.mod-cm6 .cm-contentContainer {
+    position: relative !important;
+  }
+  body:not(.imark-guard-off) .markdown-source-view.mod-cm6 .cm-content {
+    display: block !important;
+    visibility: visible !important;
+    white-space: pre-wrap !important;
+    position: relative !important;
+  }
+  body:not(.imark-guard-off) .markdown-source-view.mod-cm6 .cm-line {
+    display: block !important;
+  }
+  body:not(.imark-guard-off) .markdown-source-view.mod-cm6 .cm-cursorLayer,
+  body:not(.imark-guard-off) .markdown-source-view.mod-cm6 .cm-selectionLayer {
+    pointer-events: none !important;
+  }
+  body:not(.imark-guard-off) .markdown-source-view.mod-cm6 :is(.cm-embed-block, .cm-table-widget, .cm-callout) {
+    white-space: normal !important;
+  }
+
+  /* ---- Reading view ------------------------------------------------------------------------ */
+  body:not(.imark-guard-off) .markdown-reading-view {
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+  body:not(.imark-guard-off) .markdown-reading-view > .markdown-preview-view {
+    height: 100% !important;
+    overflow-y: auto !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+  }
+
+  /* ---- Tables: width model ----------------------------------------------------------------- */
+  /* Default ("fit"): up to the available width; long cells wrap by words; scroll only when
+     even the word-based minimum does not fit. "natural": never wrap, scroll instead. */
+  body:not(.imark-guard-off) .markdown-rendered .el-table {
+    width: auto !important;
+    max-width: none !important;
+  }
+  body:not(.imark-guard-off) .markdown-rendered .table-wrapper {
+    overflow-x: auto !important;
+    width: auto !important;
+    max-width: 100% !important;
+  }
+  body:not(.imark-guard-off) .markdown-rendered table {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+  }
+  body:not(.imark-guard-off) .imark-table-natural .markdown-rendered table,
+  body:not(.imark-guard-off) .markdown-preview-view.imark-table-natural table {
+    width: max-content !important;
+    max-width: none !important;
+  }
+  body:not(.imark-guard-off) .cm-s-obsidian .cm-table-widget .table-editor {
+    position: relative !important;
+    width: max-content !important;
+    max-width: 100% !important;
+  }
+
+  /* ---- Tables: editing must keep working whatever the theme does ---------------------------- */
+  body:not(.imark-guard-off) .cm-table-widget :is(.table-editor, .table-wrapper, table, thead, tbody, tr, th, td) {
+    pointer-events: auto !important;
+    visibility: visible !important;
+  }
+  body:not(.imark-guard-off) .cm-table-widget :is(th, td) {
+    display: table-cell !important;
+  }
+  body:not(.imark-guard-off) .cm-table-widget tr {
+    display: table-row !important;
+  }
+  body:not(.imark-guard-off) .cm-table-widget .table-cell-wrapper[contenteditable='true'] {
+    display: block !important;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    pointer-events: auto !important;
+    cursor: text !important;
+    min-width: 1.5em !important;
+    min-height: 1.3em !important;
+    opacity: 1 !important;
+  }
+  body:not(.imark-guard-off) .cm-table-widget :is(.table-col-btn, .table-row-btn, .imark-table-handle) {
+    position: absolute !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+  }
+  /* Hidden focus target / clipboard buffer of a selected cell range. */
+  .cm-table-widget .imark-table-clipboard {
+    position: absolute !important;
+    display: block !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    resize: none !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+  }
+  body:not(.imark-guard-off) .cm-table-widget .imark-table-handle:not(.is-visible) {
+    display: none !important;
+  }
+  body:not(.imark-guard-off) .cm-table-widget .imark-table-handle.is-visible {
+    display: flex !important;
+  }
+  body:not(.imark-guard-off) .cm-table-widget :is(th, td).is-selected {
+    background-color: var(--table-selection) !important;
+    box-shadow: inset 0 0 0 1px var(--table-selection-border-color) !important;
+  }
+
+  /* ---- iMark's own floating UI (menus, diagram preview, notices) ----------------------------- */
+  body:not(.imark-guard-off) .menu.imark-menu {
+    position: fixed !important;
+    display: flex !important;
+    flex-direction: column !important;
+    z-index: 1000 !important;
+    max-height: calc(100vh - 16px) !important;
+    overflow-y: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  body:not(.imark-guard-off) .menu.imark-menu .menu-item {
+    display: flex !important;
+    align-items: center !important;
+    pointer-events: auto !important;
+  }
+  body:not(.imark-guard-off) .modal-container.imark-diagram-modal {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 1001 !important;
+  }
+
+  /* ---- Theme notice (always readable: it must work when the theme is broken) ----------------- */
+  .imark-theme-notice {
+    all: initial;
+    position: fixed !important;
+    left: 50% !important;
+    bottom: 16px !important;
+    transform: translateX(-50%) !important;
+    z-index: 1002 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    width: min(560px, calc(100vw - 32px)) !important;
+    box-sizing: border-box !important;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+    background: #2b2b2b !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #5a5a5a !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35) !important;
+    font: 13px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  .imark-theme-notice * {
+    all: revert;
+    font: inherit !important;
+    color: inherit !important;
+  }
+  .imark-theme-notice .imark-theme-notice-text {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+  .imark-theme-notice button {
+    flex: 0 0 auto !important;
+    padding: 3px 10px !important;
+    border-radius: 4px !important;
+    border: 1px solid #6a6a6a !important;
+    background: #3a3a3a !important;
+    color: #f0f0f0 !important;
+    cursor: pointer !important;
+  }
+  .imark-theme-notice button.mod-cta {
+    background: #3b6fd6 !important;
+    border-color: #3b6fd6 !important;
+    color: #fff !important;
+  }
+
+  /* ---- Repairs applied by the runtime health check ------------------------------------------ */
+  body.imark-repair-width .markdown-source-view.mod-cm6 .cm-scroller,
+  body.imark-repair-width .markdown-preview-view {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+  body.imark-repair-width .markdown-source-view.mod-cm6 :is(.cm-sizer, .cm-contentContainer, .cm-content),
+  body.imark-repair-width .markdown-preview-view .markdown-preview-sizer {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    transform: none !important;
+  }
+  body.imark-repair-width .markdown-source-view.mod-cm6.is-readable-line-width .cm-sizer,
+  body.imark-repair-width .markdown-preview-view.is-readable-line-width .markdown-preview-sizer {
+    max-width: 700px !important;
+  }
+  body.imark-repair-width .markdown-source-view.mod-cm6:not(.is-readable-line-width) .cm-sizer,
+  body.imark-repair-width .markdown-preview-view:not(.is-readable-line-width) .markdown-preview-sizer {
+    max-width: none !important;
+  }
+  body.imark-repair-font .markdown-source-view.mod-cm6 :is(.cm-scroller, .cm-content, .cm-line),
+  body.imark-repair-font .markdown-source-view.mod-cm6 .markdown-rendered :is(p, li, td, th),
+  body.imark-repair-font .markdown-preview-view :is(.markdown-preview-sizer, p, li, td, th) {
+    font-size: var(--imark-font-size-override, 16px) !important;
+    line-height: 1.5 !important;
+  }
+  body.imark-repair-font .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-1,
+  body.imark-repair-font .markdown-preview-view h1 { font-size: 1.8em !important; line-height: 1.3 !important; }
+  body.imark-repair-font .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-2,
+  body.imark-repair-font .markdown-preview-view h2 { font-size: 1.5em !important; line-height: 1.3 !important; }
+  body.imark-repair-font .markdown-source-view.mod-cm6 .cm-line.HyperMD-header-3,
+  body.imark-repair-font .markdown-preview-view h3 { font-size: 1.3em !important; line-height: 1.3 !important; }
+  body.imark-repair-font .markdown-source-view.mod-cm6 .cm-line:is(.HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6),
+  body.imark-repair-font .markdown-preview-view :is(h4, h5, h6) { font-size: 1.1em !important; line-height: 1.3 !important; }
+  body.imark-repair-visibility .markdown-source-view.mod-cm6 :is(.cm-content, .cm-line),
+  body.imark-repair-visibility .markdown-preview-view :is(.markdown-preview-sizer, .markdown-preview-section) {
+    visibility: visible !important;
+    opacity: 1 !important;
+    filter: none !important;
+    clip-path: none !important;
+  }
+  body.imark-repair-contrast .markdown-source-view.mod-cm6 :is(.cm-content, .cm-line),
+  body.imark-repair-contrast .markdown-source-view.mod-cm6 .markdown-rendered :is(p, li, td, th),
+  body.imark-repair-contrast .markdown-preview-view :is(.markdown-preview-sizer, p, li, td, th, blockquote) {
+    color: var(--imark-repair-text, #222) !important;
+  }
+}

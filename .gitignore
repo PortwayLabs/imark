@@ -221,3 +221,7 @@ htmlcov/
 out-test/
 # Release artifacts (VSIX files)
 release/
+sublime/iMark/web/
+sublime/iMark/imark-package.json
+__pycache__/
+*.pyc

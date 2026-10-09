@@ -2,7 +2,7 @@
 import type { EditorMode } from '../../shared/protocol';
 import { svgIconElement } from '../render/icons';
 
-export type MenuAction = 'toggleSource' | 'toggleReadable' | 'openSource' | 'selectTheme';
+export type MenuAction = 'toggleSource' | 'toggleReadable' | 'openSource' | 'selectTheme' | 'manageThemes';
 
 export interface HeaderOptions {
   title: string;
@@ -91,6 +91,7 @@ export function createHeader(opts: HeaderOptions): HeaderHandle {
       sep(),
       item('text-cursor-input', readable ? 'Disable readable line width' : 'Readable line width', 'toggleReadable'),
       item('palette', 'Select theme…', 'selectTheme'),
+      item('table', 'Manage themes…', 'manageThemes'),
       sep(),
       item('file-text', 'Open in text editor', 'openSource'),
     );

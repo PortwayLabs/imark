@@ -221,7 +221,16 @@ export class IMarkEditorProvider implements vscode.CustomTextEditorProvider {
       case 'command':
         if (msg.command === 'openSource') await vscode.commands.executeCommand('imark.openSource', session.document.uri);
         else if (msg.command === 'selectTheme') await vscode.commands.executeCommand('imark.selectTheme');
+        else if (msg.command === 'manageThemes') await vscode.commands.executeCommand('imark.manageThemes');
         else if (msg.command === 'toggleReadableLineWidth') await vscode.commands.executeCommand('imark.toggleReadableLineWidth');
+        break;
+      case 'themeIssue':
+        if (msg.action === 'ignore') {
+          await this.themes.silenceIssues(msg.theme);
+          this.broadcastTheme();
+        } else {
+          this.themes.log(`Theme "${msg.theme}": ${msg.problems.join('; ')}${msg.repaired.length ? ` (repaired: ${msg.repaired.join(', ')})` : ''}`);
+        }
         break;
       case 'webviewFocus':
         void vscode.commands.executeCommand('setContext', 'imark.webviewFocus', msg.focused);
@@ -416,6 +425,7 @@ export class IMarkEditorProvider implements vscode.CustomTextEditorProvider {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="${csp}">
 <title>iMark</title>
+<link rel="stylesheet" href="${res('media', 'css', 'imark-guard.css')}" id="imark-guard">
 <link rel="stylesheet" href="${res('dist', 'webview', 'katex', 'katex.min.css')}">
 <link rel="stylesheet" href="${res('media', 'css', 'obsidian-vars.css')}">
 <link rel="stylesheet" href="${res('media', 'css', 'obsidian-base.css')}">

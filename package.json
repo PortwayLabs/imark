@@ -2,7 +2,7 @@
   "name": "imark",
   "displayName": "iMark",
   "description": "%imark.description%",
-  "version": "0.2.11",
+  "version": "0.3.0",
   "publisher": "PORTWAYLABS",
   "license": "MIT",
   "private": true,
@@ -91,6 +91,18 @@
         "command": "imark.toggleReadableLineWidth",
         "title": "%imark.command.toggleReadableLineWidth.title%",
         "category": "iMark"
+      },
+      {
+        "command": "imark.manageThemes",
+        "title": "%imark.command.manageThemes.title%",
+        "category": "iMark",
+        "icon": "$(symbol-color)"
+      },
+      {
+        "command": "imark.browseThemes",
+        "title": "%imark.command.browseThemes.title%",
+        "category": "iMark",
+        "icon": "$(extensions)"
       },
       {
         "command": "imark.importTheme",
@@ -212,6 +224,21 @@
           "default": "",
           "markdownDescription": "%imark.config.theme.accentColor.description%"
         },
+        "imark.theme.protection": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "guard",
+            "off"
+          ],
+          "enumDescriptions": [
+            "%imark.config.theme.protection.enum.auto%",
+            "%imark.config.theme.protection.enum.guard%",
+            "%imark.config.theme.protection.enum.off%"
+          ],
+          "default": "auto",
+          "markdownDescription": "%imark.config.theme.protection.description%"
+        },
         "imark.editor.defaultMode": {
           "type": "string",
           "enum": [
@@ -315,7 +342,14 @@
     "release:patch": "node scripts/release.mjs patch",
     "release:minor": "node scripts/release.mjs minor",
     "release:major": "node scripts/release.mjs major",
-    "release:dry": "node scripts/release.mjs patch --dry-run"
+    "release:dry": "node scripts/release.mjs patch --dry-run",
+    "build:sublime": "node esbuild.mjs --production && node scripts/build-sublime.mjs",
+    "sublime:package": "node scripts/build-sublime.mjs",
+    "sublime:link": "node scripts/build-sublime.mjs --link",
+    "sublime:install": "node scripts/build-sublime.mjs --no-zip --install",
+    "sublime:uninstall": "node scripts/build-sublime.mjs --uninstall",
+    "sublime:dev": "python3 sublime/dev/standalone.py dev/sample.md --open",
+    "test:sublime": "python3 -m unittest discover -s sublime/tests -p \"test_*.py\""
   },
   "dependencies": {
     "@codemirror/autocomplete": "6.20.3",

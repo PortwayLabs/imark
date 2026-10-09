@@ -1,22 +1,7 @@
 // Stores pasted / dropped images next to the note.
 import * as vscode from 'vscode';
 import * as path from 'node:path';
-
-function timestamp(): string {
-  const d = new Date();
-  const p = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
-}
-
-const mimeExt: Record<string, string> = {
-  'image/png': 'png',
-  'image/jpeg': 'jpg',
-  'image/gif': 'gif',
-  'image/webp': 'webp',
-  'image/svg+xml': 'svg',
-  'image/bmp': 'bmp',
-  'image/avif': 'avif',
-};
+import { attachmentBaseName } from '../shared/attachmentName';
 
 export interface SavedAttachment {
   /** Path relative to the document folder (POSIX). */
@@ -31,10 +16,9 @@ export async function saveAttachment(docUri: vscode.Uri, folder: string, origina
   const targetDir = folder ? path.resolve(docDir, folder) : docDir;
   await vscode.workspace.fs.createDirectory(vscode.Uri.file(targetDir));
 
-  let ext = path.extname(originalName).replace(/^\./, '').toLowerCase();
-  if (!ext) ext = mimeExt[mime] ?? 'png';
-  const generic = !originalName || /^(image|blob|clipboard|screenshot|pasted[ _-]?image)?\.?\w*$/i.test(path.basename(originalName, path.extname(originalName)));
-  const base = generic ? `Pasted image ${timestamp()}` : path.basename(originalName, path.extname(originalName));
+  // Clipboard-style names ("image.png", "blob", "screenshot 1", …) get a
+  // timestamp name; real file names are kept and de-duplicated with " 1", " 2".
+  const { base, ext } = attachmentBaseName(originalName, mime);
 
   let name = `${base}.${ext}`;
   let fileUri = vscode.Uri.file(path.join(targetDir, name));

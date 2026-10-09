@@ -5,7 +5,8 @@
 //
 // Steps: preflight (clean tree, tag free, nls keys) → bump version → update the
 // English and Chinese changelogs → typecheck → unit tests → VS Code integration
-// tests → production build → package VSIX into release/ → commit + tag →
+// tests → production build → package VSIX and the Sublime Text package into
+// release/ → commit + tag →
 // optionally push / publish to the Marketplace / create a GitHub release.
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
@@ -23,6 +24,7 @@ Options:
   --dry-run             Validate, test and build, but do not change files, git or publish
   --skip-tests          Skip unit tests
   --skip-vscode-tests   Skip the VS Code integration tests (they download VS Code once)
+  --skip-sublime        Do not build / attach the Sublime Text package
   --skip-changelog      Do not require / rewrite changelog sections
   --no-git              Do not commit or tag
   --push                Push the release commit and tag to origin
@@ -142,6 +144,13 @@ async function main() {
   if (!opts.skipTests) {
     step('Unit tests');
     run('npx', ['vitest', 'run']);
+    if (!opts.skipSublime) {
+      const py = spawnSync('python3', ['--version'], { stdio: 'ignore' });
+      if (py.status === 0) {
+        step('Sublime Text package tests');
+        run('python3', ['-m', 'unittest', 'discover', '-s', 'sublime/tests', '-p', 'test_*.py']);
+      } else info(c.yellow('python3 not found: skipping the Sublime Text package tests'));
+    }
   }
   if (!opts.skipVscodeTests) {
     step('VS Code integration tests');
@@ -151,6 +160,7 @@ async function main() {
 
   step('Production build');
   run('node', ['esbuild.mjs', '--production']);
+  if (!opts.skipSublime) run('node', ['scripts/build-sublime.mjs', '--no-zip']);
 
   if (opts.dryRun) {
     console.log(`\n${c.green('✔')} Dry run finished. Would release ${c.bold(tag)}:`);
@@ -178,6 +188,15 @@ async function main() {
     else fail(`Expected ${vsixPath} to exist after packaging.`);
   }
   info(c.green(`created ${vsixPath}`));
+
+  let sublimePath = null;
+  if (!opts.skipSublime) {
+    step('Package Sublime Text package');
+    run('node', ['scripts/build-sublime.mjs', '--out', opts.out]);
+    sublimePath = path.join(opts.out, `iMark-${next}.sublime-package`);
+    if (!existsSync(sublimePath)) fail(`Expected ${sublimePath} to exist after packaging.`);
+    info(c.green(`created ${sublimePath}`));
+  }
 
   // ---- Git -----------------------------------------------------------------------------------
   if (!opts.noGit) {
@@ -209,11 +228,12 @@ async function main() {
       .map(([f, p]) => `${f.includes('zh') ? '## 更新内容' : '## Changes'}\n\n${p.body}`)
       .join('\n\n');
     writeFileSync(notesFile, notes || `iMark ${tag}`);
-    run('gh', ['release', 'create', tag, vsixPath, '--title', `iMark ${tag}`, '--notes-file', notesFile]);
+    run('gh', ['release', 'create', tag, vsixPath, ...(sublimePath ? [sublimePath] : []), '--title', `iMark ${tag}`, '--notes-file', notesFile]);
   }
 
   console.log(`\n${c.green('✔')} Released ${c.bold(tag)} → ${vsixPath}`);
   console.log(`   Install locally: code --install-extension ${vsixPath}`);
+  if (sublimePath) console.log(`   Sublime Text:    ${sublimePath} (copy to Installed Packages, or npm run sublime:install)`);
   if (!opts.push && !opts.noGit) console.log(`   Push when ready: git push origin ${branch} && git push origin ${tag}`);
 }
 

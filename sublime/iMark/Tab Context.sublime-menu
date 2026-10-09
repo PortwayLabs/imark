@@ -1,0 +1,4 @@
+[
+	{ "caption": "-", "id": "imark" },
+	{ "caption": "Open in iMark", "command": "imark_open", "args": { "group": -1, "index": -1 } }
+]

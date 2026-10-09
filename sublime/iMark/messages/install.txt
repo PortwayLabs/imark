@@ -1,0 +1,41 @@
+iMark for Sublime Text
+======================
+
+Thanks for installing iMark, the Typora / Obsidian style live-preview Markdown
+editor that loads Obsidian community themes unchanged.
+
+Getting started
+---------------
+
+1. Open a Markdown file (.md) in Sublime Text.
+2. Run "iMark: Open in iMark" from the command palette (Cmd/Ctrl+Shift+P), or
+   press Cmd+Alt+M (macOS) / Ctrl+Alt+M (Windows, Linux), or right-click the
+   file, tab or sidebar entry and choose "Open in iMark".
+3. The editor opens in your browser. Edits are synced with the Sublime Text
+   buffer in both directions; Cmd/Ctrl+S in the browser saves the file in
+   Sublime Text.
+
+How it works
+------------
+
+Sublime Text has no embedded browser, so iMark runs a small local server
+(127.0.0.1 only, random per-session token) inside the plugin host that serves
+the editor to your browser and mirrors your buffer over a WebSocket.
+
+Inside Sublime Text itself, "iMark: Toggle Reading Sheet" (Cmd/Ctrl+Alt+R) shows
+a read-only rendering of the note in the right-hand group (minihtml: no tables,
+math or diagrams), images appear below image links, and hovering a wikilink,
+image, link or footnote shows a popup.
+
+Tip: set "browser": "app" in the iMark settings to open the editor in a
+Chromium-family app window (no tabs or address bar).
+
+Themes
+------
+
+Run "iMark: Import Obsidian Theme..." and pick a theme folder, a vault or a .css
+snippet; switch with "iMark: Select Theme...". Themes live in
+Packages/User/iMark/themes. "Follow Sublime Text" adapts the editor to your
+Sublime Text color scheme.
+
+Settings: Preferences > Package Settings > iMark > Settings.

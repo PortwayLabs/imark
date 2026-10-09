@@ -1,0 +1,5 @@
+[
+	{ "caption": "-", "id": "imark" },
+	{ "caption": "Open in iMark", "command": "imark_open", "args": { "files": [] } },
+	{ "caption": "iMark: Import Obsidian Theme from Here…", "command": "imark_import_theme", "args": { "paths": [] } }
+]
