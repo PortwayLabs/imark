@@ -2,7 +2,7 @@
 
 [English](CHANGELOG.md) | **简体中文**
 
-## 未发布
+## 0.3.0 (2026-10-09)
 - **表格编辑。** VS Code 中表格单元格内的复制、剪切、粘贴恢复正常：表格不再拦截所有按键，`Cmd/Ctrl+C` / `V` / `X` / `S` 能重新交给 VS Code 处理。支持选择单元格区域（拖动、`Shift`+点击、`Shift`+方向键、连按两次 `Cmd/Ctrl+A`、行 / 列手柄），可复制为 Markdown + HTML 表格、剪切、按 `Delete` 清空，或粘贴电子表格的 TSV、Markdown 表格或复制的单元格（表格按需扩展）。每行 / 每列的悬停手柄可打开行 / 列菜单（插入、复制行、移动、复制、清空、删除、对齐）。新快捷键：`Cmd/Ctrl+Shift+Backspace` 删除行，`Cmd/Ctrl+Alt+Shift+Backspace` 删除列，`Cmd/Ctrl+Shift+Enter` 在上方插入行，`Alt+↑/↓` 移动行。右键菜单新增 *Copy table as Markdown* 与 *Delete table*。修复：单元格获得焦点时做结构性修改，可能导致表格被重建、光标落入表格源码。
 - **主题管理器**（*iMark: Manage Themes…* / *Browse Community Themes…*）：浏览全部 Obsidian 社区主题（预览图、搜索、深色 / 浅色筛选），按 Obsidian 的方式从 GitHub 下载安装，切换、检查更新、更新、删除主题，并可清理未使用的主题和下载缓存。下载使用 VS Code 的代理设置，失败时回退到 `http.proxy` / `HTTPS_PROXY`。
 - **主题防护**（`imark.theme.protection`，默认 `auto`）：位于独立 CSS 层的防护样式表保证编辑器结构、滚动容器、表格宽度模型、表格编辑和 iMark 菜单在任何主题下都能工作（优先级高于主题的 `!important` 规则）；每次切换主题后自动检查并修复被挤压或移出视图的正文列、异常字号、被隐藏或看不见的文字，并提示是哪个主题、什么问题。`guard` 只保留防护层，`off` 原样加载主题。
